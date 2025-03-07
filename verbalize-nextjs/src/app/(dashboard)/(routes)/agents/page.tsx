@@ -16,6 +16,14 @@ import { useState } from "react";
 
 const AgentsPage = () => {
   const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [type, setType] = useState("Chatbot");
+
+  const handleSubmit = () => {
+    console.log("Form submitted with:", { name, type });
+    setOpen(false); // Close the dialog after submission
+  };
+
   return (
     <div className="h-full">
       <div className="font-extrabold text-4xl text-center mt-[5vh] mb-[5vh]">
@@ -44,6 +52,8 @@ const AgentsPage = () => {
                     type="text"
                     placeholder="Chatbot Name"
                     className="flex-1"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 <div className="flex items-center space-x-4">
@@ -53,7 +63,8 @@ const AgentsPage = () => {
                   <select
                     id="type"
                     className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    defaultValue="Chatbot"
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
                   >
                     <option value="Chatbot">Chatbot</option>
                     <option value="disabled" disabled>
@@ -63,7 +74,9 @@ const AgentsPage = () => {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Save changes</Button>
+                <Button type="button" onClick={handleSubmit}>
+                  Save changes
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
