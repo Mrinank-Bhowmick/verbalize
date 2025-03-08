@@ -1,9 +1,12 @@
-import { Hono } from 'hono'
+import { Hono } from "hono";
+import helloRoutes from "./routes/hello";
+import testChatbotRoutes from "./routes/testChatbot";
+import { cors } from "hono/cors";
 
-const app = new Hono()
+const app = new Hono();
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+app.route("/hello", helloRoutes);
 
-export default app
+app.route("/testchatbot", testChatbotRoutes);
+
+export default app;
