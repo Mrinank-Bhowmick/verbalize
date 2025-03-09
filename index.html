@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot Embed</title>
+    <body>
+                <!-- Verbalize Chatbot Widget - Start -->
+        <div style="position: fixed; bottom: 20px; right: 20px; z-index: 10000;">
+          <iframe 
+            id="verbalize-chatbot" 
+            src="http://localhost:3000/chatbot" 
+            style="width: 80px; height: 80px; border: none; overflow: hidden; transition: all 0.3s ease; background: transparent;" 
+            allow="microphone" 
+            allowtransparency="true" 
+            frameborder="0">
+          </iframe>
+          <script>
+            window.addEventListener("message", function(event) {
+              const chatbot = document.getElementById("verbalize-chatbot");
+              if(event.data === "chatbot-opened") {
+                chatbot.style.width = "380px";
+                chatbot.style.height = "500px";
+              } else if(event.data === "chatbot-closed") {
+                chatbot.style.width = "80px";
+                chatbot.style.height = "80px";
+              }
+            });
+          </script>
+        </div>
+        <!-- Verbalize Chatbot Widget - End -->
+    </body>
+</html>

@@ -23,21 +23,23 @@ testChatbotRoutes.post("/", async (c) => {
   const { GOOGLE_API_KEY } = env<{ GOOGLE_API_KEY: string }>(c);
   const google = createGoogleGenerativeAI({ apiKey: GOOGLE_API_KEY });
 
-  // Parse the request body to get the user's message
   const body = await c.req.json();
-  const userMessage =
-    body.messages?.[body.messages.length - 1]?.content || "Hi";
+  console.log("here", body);
 
-  const result = streamText({
-    model: google("gemini-1.5-pro-latest"),
-    prompt: userMessage,
-  });
+  const { agentID, systemInstruction } = body;
+  const userMessage = body.messages;
 
   // Set necessary headers
   c.header("X-Vercel-AI-Data-Stream", "v1");
   c.header("Content-Type", "text/plain; charset=utf-8");
 
-  return stream(c, (stream) => stream.pipe(result.toDataStream()));
+  const result = streamText({
+    model: google("gemini-1.5-pro-latest"),
+    system: systemInstruction,
+    messages: userMessage,
+  });
+
+  return result.toDataStreamResponse();
 });
 
 // Keep the OPTIONS handler for preflight requests

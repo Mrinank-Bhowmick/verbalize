@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaRobot, FaTimes } from "react-icons/fa";
 import { useChat } from "@ai-sdk/react";
 
@@ -10,15 +10,17 @@ interface chatbotProps {
   systemInstruction: string | null;
   description: string;
   agentID: string;
+  isEmbedded?: boolean;
 }
 
-const ChatbotButton = ({
+export default function ChatbotButton({
   firstMessage,
   agentName,
   systemInstruction,
   description,
   agentID,
-}: chatbotProps) => {
+  isEmbedded = false,
+}: chatbotProps) {
   const [showChat, setShowChat] = useState(false);
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     api: "http://127.0.0.1:8787/testchatbot",
@@ -31,10 +33,27 @@ const ChatbotButton = ({
     },
   });
 
+  // Notify parent window when chat state changes (for iframe embedding)
+  useEffect(() => {
+    if (isEmbedded && window.parent !== window) {
+      if (showChat) {
+        window.parent.postMessage("chatbot-opened", "*");
+      } else {
+        window.parent.postMessage("chatbot-closed", "*");
+      }
+    }
+  }, [showChat, isEmbedded]);
+
+  // For embedded mode, adjust position and appearance
+  const containerClass = isEmbedded
+    ? "fixed bottom-0 right-0 z-50"
+    : "fixed bottom-6 right-6 z-50";
+
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className={containerClass}>
       {showChat ? (
         <div className="bg-white rounded-lg shadow-xl w-80 sm:w-96 h-96 flex flex-col overflow-hidden border border-gray-200 transition-all duration-300 ease-in-out">
+          {/* Rest of your chat UI remains the same */}
           <div className="bg-yellow-600 p-4 flex justify-between items-center">
             <h3 className="text-white font-medium">{agentName}</h3>
             <button
@@ -44,8 +63,9 @@ const ChatbotButton = ({
               <FaTimes />
             </button>
           </div>
+          {/* ...rest of your component code... */}
           <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-            {messages.length === 0 && firstMessage == "" ? (
+            {messages.length === 0 && firstMessage === "" ? (
               <p className="text-gray-500 italic text-center mt-4">
                 Ask me anything...
               </p>
@@ -117,6 +137,4 @@ const ChatbotButton = ({
       )}
     </div>
   );
-};
-
-export default ChatbotButton;
+}
