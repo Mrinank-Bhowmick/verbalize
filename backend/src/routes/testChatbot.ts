@@ -5,10 +5,10 @@ import { env } from "hono/adapter";
 import { stream } from "hono/streaming";
 import { cors } from "hono/cors";
 
-const testChatbotRoutes = new Hono();
+const testchatbotroutes = new Hono();
 
 // Enable CORS
-testChatbotRoutes.use(
+testchatbotroutes.use(
   "/*",
   cors({
     origin: "*", // In production, specify your frontend origin
@@ -19,7 +19,7 @@ testChatbotRoutes.use(
 );
 
 // Handle the actual POST request for chat
-testChatbotRoutes.post("/", async (c) => {
+testchatbotroutes.post("/", async (c) => {
   const { GOOGLE_API_KEY } = env<{ GOOGLE_API_KEY: string }>(c);
   const google = createGoogleGenerativeAI({ apiKey: GOOGLE_API_KEY });
 
@@ -43,8 +43,8 @@ testChatbotRoutes.post("/", async (c) => {
 });
 
 // Keep the OPTIONS handler for preflight requests
-testChatbotRoutes.options("/", (c) => {
+testchatbotroutes.options("/", (c) => {
   return c.text("");
 });
 
-export default testChatbotRoutes;
+export default testchatbotroutes;
