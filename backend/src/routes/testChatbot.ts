@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGoogleGenerativeAI, google } from "@ai-sdk/google";
 import { streamText } from "ai";
 import { env } from "hono/adapter";
 import { stream } from "hono/streaming";

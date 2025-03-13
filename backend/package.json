@@ -3,9 +3,10 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "start": "ts-node src/index.ts",
+    "start": "npx tsx watch ./src/index.ts",
     "deploy": "wrangler deploy --minify",
     "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx src/db/seed.ts"
   },
