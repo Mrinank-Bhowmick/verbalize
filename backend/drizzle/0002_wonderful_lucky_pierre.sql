@@ -1,0 +1,1 @@
+ALTER TABLE "agents" ADD COLUMN "firstMessage" text NOT NULL;

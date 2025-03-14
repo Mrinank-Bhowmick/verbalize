@@ -2,13 +2,15 @@
 import { Input } from "@/components/ui/input";
 import { useParams } from "next/navigation";
 import { BsRobot } from "react-icons/bs";
-import { useState, useEffect } from "react";
+import { useState, useEffect, MouseEvent } from "react";
 import ChatbotButton from "@/components/chatbotbutton";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { systemInstructionTemplate } from "./systemPrompt";
 import { Tiktoken } from "js-tiktoken/lite";
 import cl100k_base from "js-tiktoken/ranks/cl100k_base";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@clerk/nextjs";
 
 const AgentSchema = z.object({
   agentName: z.string().min(1, { message: "Agent name is required" }),
@@ -19,6 +21,7 @@ const AgentSchema = z.object({
 const AgentPage = () => {
   // agents/[agentid]/page.tsx
   const { agentid } = useParams();
+  const { userId } = useAuth();
   const [agentName, setAgentName] = useState("");
   const [description, setDescription] = useState("");
   const [firstMessage, setFirstMessage] = useState("");
@@ -76,6 +79,40 @@ const AgentPage = () => {
     validateForm();
   }, [description, agentName, firstMessage]);
 
+  const saveButton = async (e: MouseEvent) => {
+    e.preventDefault();
+    console.log(
+      JSON.stringify({
+        agentId: agentid,
+        clientId: userId,
+        agentName: agentName,
+        firstMessage: firstMessage,
+        systemInstruction: systemInstruction,
+        description: description,
+      })
+    );
+    return;
+    const response = fetch(
+      "http://localhost:8000/clients/:clientId/agents/:agentId/save",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          agentId: agentid,
+          clientId: userId,
+          agentName: agentName,
+          firstMessage: firstMessage,
+          systemInstruction: systemInstruction,
+          description: description,
+        }),
+      }
+    );
+
+    console.log(response);
+  };
+
   return (
     <div>
       <div>
@@ -88,7 +125,23 @@ const AgentPage = () => {
         />
       </div>
       <div className="flex flex-col justify-center items-center">
-        <div className="flex flex-col items-center gap-4 mt-5 mb-5">
+        <div className="fixed top-6 flex justify-between bg-yellow-100 w-3/5 py-2 px-4 rounded-2xl">
+          <div>
+            <Button>Preview</Button>
+          </div>
+          <div className="flex gap-4">
+            <Button
+              onClick={(e) => saveButton(e)}
+              className="bg-white text-black text-lg px-6 py-2 border border-yellow-400"
+            >
+              Save
+            </Button>
+            <Button className="bg-yellow-300 text-black text-lg px-6 py-2 border border-yellow-600">
+              Deploy
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-4 mt-20 mb-5">
           <div className="text-2xl font-bold">General Information</div>
           <div>General Information about your chatbot</div>
         </div>

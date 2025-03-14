@@ -1,7 +1,17 @@
 import { Hono } from "hono";
 import { db } from "../db";
-import { agents } from "../db/schema";
+import { savedAgents } from "../db/schema";
 import { eq, and } from "drizzle-orm";
+import { z } from "zod";
+
+const AgentSchema = z.object({
+  agentId: z.string().min(4, "Agent ID is required"),
+  clientId: z.string().min(1, "Client ID is required"),
+  agentName: z.string().min(1, { message: "Agent name is required" }),
+  description: z.string().min(15).max(30),
+  firstMessage: z.string().min(1, { message: "First message is required" }),
+  systemInstruction: z.string().nullable(),
+});
 
 const agentsRoutes = new Hono();
 
@@ -15,8 +25,8 @@ agentsRoutes.get("/", async (c) => {
 
   const allAgents = await db
     .select()
-    .from(agents)
-    .where(eq(agents.clientId, clientId));
+    .from(savedAgents)
+    .where(eq(savedAgents.clientId, clientId));
 
   return c.json(allAgents);
 });
@@ -32,8 +42,10 @@ agentsRoutes.get("/:agentId", async (c) => {
 
   const agentDetails = await db
     .select()
-    .from(agents)
-    .where(and(eq(agents.agentId, agentId), eq(agents.clientId, clientId)));
+    .from(savedAgents)
+    .where(
+      and(eq(savedAgents.agentId, agentId), eq(savedAgents.clientId, clientId))
+    );
 
   return c.json(agentDetails);
 });
@@ -43,31 +55,50 @@ agentsRoutes.post("/", async (c) => {
   const body = await c.req.json();
   console.log(body);
 
-  const { agentId, clientId, agentName, systemInstruction, description } = body;
+  const result = AgentSchema.safeParse(body);
+
+  if (!result.success) {
+    console.log(result.error.format());
+    return c.json(
+      {
+        error: "Validation failed",
+      },
+      400
+    );
+  }
+
+  const validData = result.data;
+  console.log(validData);
+
+  const {
+    agentId,
+    clientId,
+    agentName,
+    systemInstruction,
+    description,
+    firstMessage,
+  } = body;
 
   const success = await db
-    .insert(agents)
-    .values({ agentId, clientId, agentName, systemInstruction, description });
+    .insert(savedAgents)
+    .values({
+      agentId,
+      clientId,
+      agentName,
+      systemInstruction,
+      description,
+      firstMessage,
+    })
+    .returning();
 
   console.log(success);
-  return c.json(body);
+  return c.json(success[0], 201);
 });
 
 // Update an agent
-agentsRoutes.put("/:agentId", async (c) => {
-  const { clientId, agentId } = c.req.param();
-  console.log("clientId:", clientId, "agentId:", agentId); // Add this line
-  const body = await c.req.json();
-  await db.update(agents).set(body).where({ clientId, id: agentId });
-  return c.json({ message: "Agent updated" });
-});
+agentsRoutes.put("/:agentId", async (c) => {});
 
 // Delete an agent
-agentsRoutes.delete("/:agentId", async (c) => {
-  const { clientId, agentId } = c.req.param();
-  console.log("clientId:", clientId, "agentId:", agentId); // Add this line
-  await db.delete(agents).where({ clientId, id: agentId });
-  return c.json({ message: "Agent deleted" });
-});
+agentsRoutes.delete("/:agentId", async (c) => {});
 
 export default agentsRoutes;

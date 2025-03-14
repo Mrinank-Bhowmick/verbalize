@@ -53,7 +53,6 @@ export default function ChatbotButton({
     <div className={containerClass}>
       {showChat ? (
         <div className="bg-white rounded-lg shadow-xl w-80 sm:w-96 h-96 flex flex-col overflow-hidden border border-gray-200 transition-all duration-300 ease-in-out">
-          {/* Rest of your chat UI remains the same */}
           <div className="bg-yellow-600 p-4 flex justify-between items-center">
             <h3 className="text-white font-medium">{agentName}</h3>
             <button
@@ -63,7 +62,6 @@ export default function ChatbotButton({
               <FaTimes />
             </button>
           </div>
-          {/* ...rest of your component code... */}
           <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
             {messages.length === 0 && firstMessage === "" ? (
               <p className="text-gray-500 italic text-center mt-4">

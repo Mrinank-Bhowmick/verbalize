@@ -15,6 +15,27 @@
       "when": 1741874131274,
       "tag": "0001_remarkable_ultimo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1741890542256,
+      "tag": "0002_wonderful_lucky_pierre",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1741895091687,
+      "tag": "0003_pale_tarantula",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1741895196782,
+      "tag": "0004_nebulous_shriek",
+      "breakpoints": true
     }
   ]
 }
