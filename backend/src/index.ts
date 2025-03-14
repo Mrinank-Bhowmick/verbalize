@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { serve } from "@hono/node-server"; // Required for running in Node.js
+import { serve } from "@hono/node-server"; 
 import helloRoutes from "./routes/hello";
 import testChatbotRoutes from "./routes/testchatbot";
 import agentsRoutes from "./routes/agents";

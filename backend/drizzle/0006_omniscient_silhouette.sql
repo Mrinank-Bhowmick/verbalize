@@ -1,0 +1,1 @@
+ALTER TABLE "deployedAgents" ALTER COLUMN "isDeployed" SET DEFAULT true;

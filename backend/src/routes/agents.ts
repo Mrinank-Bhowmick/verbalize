@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { db } from "../db";
-import { savedAgents } from "../db/schema";
+import { deployedAgents, savedAgents } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
+import { cors } from "hono/cors";
 
 const AgentSchema = z.object({
   agentId: z.string().min(4, "Agent ID is required"),
@@ -15,18 +16,27 @@ const AgentSchema = z.object({
 
 const agentsRoutes = new Hono();
 
+agentsRoutes.use(cors());
+
 // Get all agents for a client
-// http://localhost:3000/clients/client123/agents
+// http://localhost:8000/clients/client123/agents
 agentsRoutes.get("/", async (c) => {
   const clientId = c.req.param("clientId");
   if (!clientId) {
     return c.json({ error: "Client ID is required" }, 400);
   }
 
-  const allAgents = await db
+  const savedQuery = db
     .select()
     .from(savedAgents)
     .where(eq(savedAgents.clientId, clientId));
+
+  const deployedQuery = db
+    .select()
+    .from(deployedAgents)
+    .where(eq(deployedAgents.clientId, clientId));
+
+  const allAgents = await savedQuery.union(deployedQuery);
 
   return c.json(allAgents);
 });
