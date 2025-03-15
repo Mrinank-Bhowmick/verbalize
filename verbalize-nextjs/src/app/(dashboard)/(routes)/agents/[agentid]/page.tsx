@@ -39,6 +39,34 @@ const AgentPage = () => {
     }
   }, [systemInstruction]);
 
+  useEffect(() => {
+    const fetchAgentDetails = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/clients/${userId}/agents/${agentid}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("Fetched data:", result);
+        const data = result[0];
+
+        setAgentName(data.agentName || "");
+        setDescription(data.description || "");
+        setFirstMessage(data.firstMessage || "");
+        setSystemInstruction(data.systemInstruction || "");
+      } catch (error) {
+        console.error("Error fetching agent details:", error);
+      }
+    };
+    if (userId) {
+      fetchAgentDetails();
+    }
+  }, [userId, agentid]);
+
   const validateForm = () => {
     try {
       AgentSchema.parse({
@@ -125,18 +153,18 @@ const AgentPage = () => {
         />
       </div>
       <div className="flex flex-col justify-center items-center">
-        <div className="fixed top-6 flex justify-between bg-yellow-100 w-3/5 py-2 px-4 rounded-2xl">
+        <div className="fixed top-6 flex flex-wrap gap-2 justify-between bg-amber-200/90 transition-all w-4/6 py-2 px-4 rounded-2xl">
           <div>
             <Button>Preview</Button>
           </div>
           <div className="flex gap-4">
             <Button
               onClick={(e) => saveButton(e)}
-              className="bg-white text-black text-lg px-6 py-2 border border-yellow-400"
+              className="bg-white hover:bg-black hover:text-white text-black text-lg px-6 py-2 border border-yellow-400"
             >
               Save
             </Button>
-            <Button className="bg-yellow-300 text-black text-lg px-6 py-2 border border-yellow-600">
+            <Button className="bg-amber-400 hover:bg-white text-black text-lg px-6 py-2 border border-yellow-600">
               Deploy
             </Button>
           </div>
@@ -148,7 +176,7 @@ const AgentPage = () => {
         <BsRobot size={100} className="mt-10 mb-10" />
         <div>
           <div>
-            <div className="flex gap-8">
+            <div className="flex flex-wrap gap-8">
               <div className="flex flex-col gap-2">
                 <div className="font-bold">Name</div>
                 <Input
@@ -219,6 +247,7 @@ const AgentPage = () => {
             <Textarea
               className="w-[45vw] h-[40vh]"
               placeholder={systemInstructionTemplate}
+              value={systemInstruction || ""}
               onChange={(e) => {
                 setSystemInstruction(e.target.value);
               }}

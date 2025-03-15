@@ -1,12 +1,14 @@
 import { Hono } from "hono";
-import { serve } from "@hono/node-server"; 
-import helloRoutes from "./routes/hello";
+import { serve } from "@hono/node-server";
 import testChatbotRoutes from "./routes/testchatbot";
 import agentsRoutes from "./routes/agents";
 
 const app = new Hono();
 
-app.route("/hello", helloRoutes);
+app.get("/", async (c) => {
+  return c.json({ hello: "world" });
+});
+
 app.route("/testchatbot", testChatbotRoutes);
 app.route("/clients/:clientId/agents", agentsRoutes);
 

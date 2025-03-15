@@ -35,7 +35,7 @@ const ChatbotButton = ({
     <div className="fixed bottom-6 right-6 z-50">
       {showChat ? (
         <div className="bg-white rounded-lg shadow-xl w-80 sm:w-96 h-96 flex flex-col overflow-hidden border border-gray-200 transition-all duration-300 ease-in-out">
-          <div className="bg-yellow-600 p-4 flex justify-between items-center">
+          <div className="bg-black p-4 flex justify-between items-center">
             <h3 className="text-white font-medium">{agentName}</h3>
             <button
               onClick={() => setShowChat(false)}
@@ -69,7 +69,7 @@ const ChatbotButton = ({
                     <span
                       className={`inline-block px-3 py-2 rounded-lg ${
                         message.role === "user"
-                          ? "bg-yellow-600 text-white"
+                          ? "bg-black text-white"
                           : "bg-gray-200 text-gray-800"
                       }`}
                     >
@@ -99,7 +99,7 @@ const ChatbotButton = ({
               />
               <button
                 type="submit"
-                className="bg-yellow-600 text-white px-4 py-2 rounded-r-lg hover:bg-yellow-700 transition-colors cursor-pointer"
+                className="bg-black text-white px-4 py-2 rounded-r-lg hover:bg-gray-700 transition-colors cursor-pointer"
               >
                 Send
               </button>
@@ -109,7 +109,7 @@ const ChatbotButton = ({
       ) : (
         <button
           onClick={() => setShowChat(true)}
-          className="bg-yellow-600 hover:bg-yellow-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110"
+          className="bg-black text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110"
           aria-label="Open chat"
         >
           <FaRobot className="text-2xl" />
