@@ -150,6 +150,7 @@ const AgentPage = () => {
           agentName={agentName}
           description={description}
           agentID={`${agentid}`}
+          api={"http://localhost:8000/testchatbot"}
         />
       </div>
       <div className="flex flex-col justify-center items-center">

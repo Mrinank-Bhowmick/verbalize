@@ -5,10 +5,9 @@ import { env } from "hono/adapter";
 import { stream } from "hono/streaming";
 import { cors } from "hono/cors";
 
-const testchatbotroutes = new Hono();
+const demochatbotroute = new Hono();
 
-// Enable CORS
-testchatbotroutes.use(
+demochatbotroute.use(
   "/*",
   cors({
     origin: "*",
@@ -19,14 +18,36 @@ testchatbotroutes.use(
 );
 
 // Handle the actual POST request for chat
-testchatbotroutes.post("/", async (c) => {
-  const { GOOGLE_API_KEY } = env<{ GOOGLE_API_KEY: string }>(c);
+demochatbotroute.post("/", async (c) => {
+  const { GOOGLE_API_KEY, TURNSTILE_KEY } = env<{
+    GOOGLE_API_KEY: string;
+    TURNSTILE_KEY: string;
+  }>(c);
   const google = createGoogleGenerativeAI({ apiKey: GOOGLE_API_KEY });
 
   const body = await c.req.json();
-  console.log("here", body);
+  //console.log("here", body);
 
-  const { agentID, systemInstruction } = body;
+  const { agentID, systemInstruction, turnstileToken } = body;
+  const response = await fetch(
+    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secret: TURNSTILE_KEY,
+        response: turnstileToken,
+      }),
+    }
+  );
+
+  const data = (await response.json()) as any;
+  if (!data.success) {
+    return c.json({
+      result: false,
+      message: "Cloudflare captcha failed, Refresh page.",
+    });
+  }
   const userMessage = body.messages;
 
   // Set necessary headers
@@ -43,8 +64,8 @@ testchatbotroutes.post("/", async (c) => {
 });
 
 // Keep the OPTIONS handler for preflight requests
-testchatbotroutes.options("/", (c) => {
+demochatbotroute.options("/", (c) => {
   return c.text("");
 });
 
-export default testchatbotroutes;
+export default demochatbotroute;

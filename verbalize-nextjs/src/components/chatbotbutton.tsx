@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FaRobot, FaTimes } from "react-icons/fa";
 import { useChat } from "@ai-sdk/react";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 interface chatbotProps {
   firstMessage: string;
@@ -10,6 +11,7 @@ interface chatbotProps {
   systemInstruction: string | null;
   description: string;
   agentID: string;
+  api: string;
 }
 
 const ChatbotButton = ({
@@ -18,18 +20,36 @@ const ChatbotButton = ({
   systemInstruction,
   description,
   agentID,
+  api,
 }: chatbotProps) => {
   const [showChat, setShowChat] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: "http://127.0.0.1:8787/testchatbot",
-    initialInput: firstMessage,
+    api: api,
+    initialMessages: [{ id: "0", role: "assistant", content: firstMessage }],
     body: {
       agentID: agentID,
       systemInstruction: systemInstruction
         ? systemInstruction
         : `Your name is ${agentName}. Description about you - ${description}`,
+      turnstileToken: turnstileToken,
     },
   });
+  // Add a custom submit handler to debug
+  const debugSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted");
+    console.log("API endpoint:", api);
+    console.log("Input:", input);
+    console.log("Turnstile token:", turnstileToken);
+
+    // Call the original handler
+    handleSubmit(e);
+  };
+
+  const handleTurnstileSuccess = (token: string) => {
+    setTurnstileToken(token);
+  };
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
@@ -51,14 +71,6 @@ const ChatbotButton = ({
               </p>
             ) : (
               <div>
-                <div className="mb-3 text-left">
-                  <div className="text-xs font-medium text-gray-500 mb-1">
-                    {agentName}
-                  </div>
-                  <span className="inline-block px-4 py-2 rounded-lg bg-gray-200 text-gray-800 shadow-sm">
-                    {firstMessage}
-                  </span>
-                </div>
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -88,28 +100,36 @@ const ChatbotButton = ({
             )}
           </div>
           <div className="p-4 border-t border-gray-200 bg-white">
-            <form onSubmit={handleSubmit} className="flex items-center">
-              <input
-                type="text"
-                name="prompt"
-                value={input}
-                onChange={handleInputChange}
-                placeholder="Type a message..."
-                className="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            {!turnstileToken ? (
+              <Turnstile
+                siteKey="0x4AAAAAABCeVBWNr19klCWD"
+                onSuccess={handleTurnstileSuccess}
+                className="text-center"
               />
-              <button
-                type="submit"
-                className="bg-black text-white px-4 py-2 rounded-r-lg hover:bg-gray-700 transition-colors cursor-pointer"
-              >
-                Send
-              </button>
-            </form>
+            ) : (
+              <form onSubmit={debugSubmit} className="flex items-center">
+                <input
+                  type="text"
+                  name="prompt"
+                  value={input}
+                  onChange={handleInputChange}
+                  placeholder="Type a message..."
+                  className="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                />
+                <button
+                  type="submit"
+                  className="bg-black text-white px-4 py-2 rounded-r-lg hover:bg-gray-700 transition-colors cursor-pointer"
+                >
+                  Send
+                </button>
+              </form>
+            )}
           </div>
         </div>
       ) : (
         <button
           onClick={() => setShowChat(true)}
-          className="bg-black text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110"
+          className="bg-neutral-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110"
           aria-label="Open chat"
         >
           <FaRobot className="text-2xl" />

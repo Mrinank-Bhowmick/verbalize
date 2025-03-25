@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import testChatbotRoutes from "./routes/testchatbot";
 import agentsRoutes from "./routes/agents";
+import demochatbotroute from "./routes/demochatbot";
 
 const app = new Hono();
 
@@ -11,6 +12,7 @@ app.get("/", async (c) => {
 
 app.route("/testchatbot", testChatbotRoutes);
 app.route("/clients/:clientId/agents", agentsRoutes);
+app.route("/demochatbot", demochatbotroute);
 
 serve(
   {
