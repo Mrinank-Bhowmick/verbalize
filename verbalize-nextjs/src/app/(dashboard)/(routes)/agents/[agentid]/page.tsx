@@ -20,6 +20,11 @@ const AgentSchema = z.object({
 
 const AgentPage = () => {
   // agents/[agentid]/page.tsx
+  const baseURL =
+    process.env.NODE_ENV === "development"
+      ? "http://127.0.0.1:8787"
+      : "https://verbalize-api.mrinank-ai.tech";
+
   const { agentid } = useParams();
   const { userId } = useAuth();
   const [agentName, setAgentName] = useState("");
@@ -43,7 +48,7 @@ const AgentPage = () => {
     const fetchAgentDetails = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8787/clients/${userId}/agents/${agentid}`
+          `${baseURL}/clients/${userId}/agents/${agentid}`
         );
 
         if (!response.ok) {
@@ -150,7 +155,7 @@ const AgentPage = () => {
           agentName={agentName}
           description={description}
           agentID={`${agentid}`}
-          api={"http://127.0.0.1:8787/testchatbot"}
+          api={`${baseURL}/testchatbot`}
         />
       </div>
       <div className="flex flex-col justify-center items-center">

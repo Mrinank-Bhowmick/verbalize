@@ -19,6 +19,10 @@ const Demo = () => {
   const targetRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const baseURL =
+    process.env.NODE_ENV === "development"
+      ? "http://127.0.0.1:8787"
+      : "https://verbalize-api.mrinank-ai.tech";
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -64,7 +68,7 @@ const Demo = () => {
             agentName={agentName}
             description={description}
             agentID={`${agentid}`}
-            api={"http://localhost:8000/demochatbot"}
+            api={`${baseURL}/demochatbot`}
           />
           <audio ref={audioRef} src="/sound/pop.mp3" preload="auto" />
           {/* Add audio element */}

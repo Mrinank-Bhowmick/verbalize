@@ -24,7 +24,7 @@ const Sidebar = () => {
       </div>
 
       {/* Menu items */}
-      <div className="flex flex-col items-center md:items-start justify-center gap-5 md:gap-10">
+      <div className="flex flex-col items-center md:items-start justify-center gap-5 md:gap-10 font-semibold">
         {menuItems.map((item, index) => (
           <Link
             href={item.href}

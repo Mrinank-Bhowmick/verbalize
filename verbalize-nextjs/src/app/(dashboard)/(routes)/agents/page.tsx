@@ -35,6 +35,10 @@ const AgentsPage = () => {
   const [savedAgents, setSavedAgents] = useState<Agent[]>([]);
   const [deployedAgents, setDeployedAgents] = useState<Agent[]>([]);
   const { userId } = useAuth();
+  const baseURL =
+    process.env.NODE_ENV === "development"
+      ? "http://127.0.0.1:8787"
+      : "https://verbalize-api.mrinank-ai.tech";
 
   useEffect(() => {
     async function fetchAgents(url: string) {
@@ -50,7 +54,7 @@ const AgentsPage = () => {
       });
     }
     if (userId) {
-      fetchAgents(`http://127.0.0.1:8787/clients/${userId}/agents`);
+      fetchAgents(`${baseURL}/clients/${userId}/agents`);
     }
   }, [userId]);
 

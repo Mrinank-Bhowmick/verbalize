@@ -11,5 +11,6 @@
       "database_id": "b83add7e-8050-48d7-aa4e-ed299575b2f8",
       "migrations_dir": "drizzle/d1-migration"
     }
-  ]
+  ],
+  "observability": { "enabled": true }
 }
