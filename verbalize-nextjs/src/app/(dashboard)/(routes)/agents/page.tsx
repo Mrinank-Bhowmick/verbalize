@@ -50,7 +50,7 @@ const AgentsPage = () => {
       });
     }
     if (userId) {
-      fetchAgents(`http://localhost:8000/clients/${userId}/agents`);
+      fetchAgents(`http://127.0.0.1:8787/clients/${userId}/agents`);
     }
   }, [userId]);
 

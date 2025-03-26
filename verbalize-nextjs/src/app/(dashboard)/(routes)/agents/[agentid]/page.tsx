@@ -43,7 +43,7 @@ const AgentPage = () => {
     const fetchAgentDetails = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/clients/${userId}/agents/${agentid}`
+          `http://127.0.0.1:8787/clients/${userId}/agents/${agentid}`
         );
 
         if (!response.ok) {
@@ -121,7 +121,7 @@ const AgentPage = () => {
     );
     return;
     const response = fetch(
-      "http://localhost:8000/clients/:clientId/agents/:agentId/save",
+      "http://127.0.0.1:8787/clients/:clientId/agents/:agentId/save",
       {
         method: "POST",
         headers: {
@@ -150,7 +150,7 @@ const AgentPage = () => {
           agentName={agentName}
           description={description}
           agentID={`${agentid}`}
-          api={"http://localhost:8000/testchatbot"}
+          api={"http://127.0.0.1:8787/testchatbot"}
         />
       </div>
       <div className="flex flex-col justify-center items-center">

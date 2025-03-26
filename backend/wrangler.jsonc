@@ -1,6 +1,15 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "backend",
-  "main": "src/index.ts",
-  "compatibility_date": "2025-03-07"
+  "main": "src/cf-index.ts",
+  "compatibility_date": "2025-02-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "verbalize",
+      "database_id": "b83add7e-8050-48d7-aa4e-ed299575b2f8",
+      "migrations_dir": "drizzle/d1-migration"
+    }
+  ]
 }

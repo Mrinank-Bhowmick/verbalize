@@ -1,9 +1,16 @@
 import { Hono } from "hono";
-import { db } from "../db";
-import { deployedAgents, savedAgents } from "../db/schema";
+import { drizzle } from "drizzle-orm/d1";
+//import { db } from "../db";
+//import { deployedAgents, savedAgents } from "../db/schema";
+import { Agents } from "../db/d1/schema";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { cors } from "hono/cors";
+
+// CF d1
+type Bindings = {
+  DB: D1Database;
+};
 
 const AgentSchema = z.object({
   agentId: z.string().min(4, "Agent ID is required"),
@@ -14,7 +21,7 @@ const AgentSchema = z.object({
   systemInstruction: z.string().nullable(),
 });
 
-const agentsRoutes = new Hono();
+const agentsRoutes = new Hono<{ Bindings: Bindings }>();
 
 agentsRoutes.use(cors());
 
@@ -26,17 +33,14 @@ agentsRoutes.get("/", async (c) => {
     return c.json({ error: "Client ID is required" }, 400);
   }
 
-  const savedQuery = db
-    .select()
-    .from(savedAgents)
-    .where(eq(savedAgents.clientId, clientId));
+  // cf d1
+  const db = drizzle(c.env.DB);
+  //
 
-  const deployedQuery = db
+  const allAgents = await db
     .select()
-    .from(deployedAgents)
-    .where(eq(deployedAgents.clientId, clientId));
-
-  const allAgents = await savedQuery.union(deployedQuery);
+    .from(Agents)
+    .where(eq(Agents.clientId, clientId));
 
   return c.json(allAgents);
 });
@@ -50,12 +54,14 @@ agentsRoutes.get("/:agentId", async (c) => {
     return c.json("Missing clientID");
   }
 
+  // cf d1
+  const db = drizzle(c.env.DB);
+  //
+
   const agentDetails = await db
     .select()
-    .from(savedAgents)
-    .where(
-      and(eq(savedAgents.agentId, agentId), eq(savedAgents.clientId, clientId))
-    );
+    .from(Agents)
+    .where(and(eq(Agents.agentId, agentId), eq(Agents.clientId, clientId)));
 
   return c.json(agentDetails);
 });
@@ -89,8 +95,12 @@ agentsRoutes.post("/", async (c) => {
     firstMessage,
   } = body;
 
+  // cf d1
+  const db = drizzle(c.env.DB);
+  //
+
   const success = await db
-    .insert(savedAgents)
+    .insert(Agents)
     .values({
       agentId,
       clientId,

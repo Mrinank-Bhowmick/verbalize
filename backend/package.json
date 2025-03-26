@@ -6,11 +6,13 @@
     "dev:cf": "wrangler dev",
     "start": "node dist/index.js",
     "build": "tsc",
-    "deploy": "wrangler deploy --minify",
+    "deploy": "wrangler deploy --minify src/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "db:cf-generate": "drizzle-kit generate:sqlite",
+    "db:cf-seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.1.20",
@@ -30,6 +32,6 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
-    "wrangler": "^3.109.2"
+    "wrangler": "^4.4.1"
   }
 }
