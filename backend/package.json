@@ -1,12 +1,12 @@
 {
-  "name": "backend",
+  "name": "verbalize-backend",
   "type": "module",
   "scripts": {
     "dev": "tsx watch ./src/index.ts",
     "dev:cf": "wrangler dev",
     "start": "node dist/index.js",
     "build": "tsc",
-    "deploy": "wrangler deploy --minify src/index.ts",
+    "deploy": "wrangler deploy --minify src/cf-index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

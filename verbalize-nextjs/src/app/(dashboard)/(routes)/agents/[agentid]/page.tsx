@@ -65,7 +65,7 @@ const AgentPage = () => {
     if (userId) {
       fetchAgentDetails();
     }
-  }, [userId, agentid]);
+  });
 
   const validateForm = () => {
     try {
@@ -156,7 +156,7 @@ const AgentPage = () => {
       <div className="flex flex-col justify-center items-center">
         <div className="fixed top-6 flex flex-wrap gap-2 justify-between bg-amber-200/90 transition-all w-4/6 py-2 px-4 rounded-2xl">
           <div>
-            <Button>Preview</Button>
+            <Button className="bg-red-600">Delete</Button>
           </div>
           <div className="flex gap-4">
             <Button
