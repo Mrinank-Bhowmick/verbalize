@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaRobot, FaTimes } from "react-icons/fa";
 import { useChat } from "@ai-sdk/react";
 import { Turnstile } from "@marsidev/react-turnstile";
+import { getFingerprint } from "@thumbmarkjs/thumbmarkjs";
 
 interface chatbotProps {
   firstMessage: string;
@@ -24,6 +25,17 @@ const ChatbotButton = ({
 }: chatbotProps) => {
   const [showChat, setShowChat] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [fingerprint, setFingerprint] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchFingerprint = async () => {
+      const fp = await getFingerprint();
+      setFingerprint(fp);
+    };
+
+    fetchFingerprint();
+  }, []);
+
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     api: api,
     initialMessages: [{ id: "0", role: "assistant", content: firstMessage }],
@@ -33,6 +45,7 @@ const ChatbotButton = ({
         ? systemInstruction
         : `Your name is ${agentName}. Description about you - ${description}`,
       turnstileToken: turnstileToken,
+      browserFingerprint: fingerprint,
     },
   });
   // Add a custom submit handler to debug

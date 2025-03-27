@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import testChatbotRoutes from "./routes/testchatbot";
 import agentsRoutes from "./routes/agents";
 import demochatbotroute from "./routes/demochatbot";
+import mascotroute from "./routes/mascot";
 
 export type Bindings = {
   DB: D1Database;
@@ -18,5 +19,6 @@ app.get("/", async (c) => {
 app.route("/testchatbot", testChatbotRoutes);
 app.route("/clients/:clientId/agents", agentsRoutes);
 app.route("/demochatbot", demochatbotroute);
+app.route("/mascot", mascotroute);
 
 export default app;
