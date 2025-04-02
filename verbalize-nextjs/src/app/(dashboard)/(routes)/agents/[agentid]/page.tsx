@@ -43,8 +43,9 @@ const AgentPage = () => {
       setTokenCount(tokens.length);
     }
   }, [systemInstruction]);
-
   useEffect(() => {
+    if (!userId || !agentid || !baseURL) return; // Ensure all values are available
+
     const fetchAgentDetails = async () => {
       try {
         const response = await fetch(
@@ -67,10 +68,9 @@ const AgentPage = () => {
         console.error("Error fetching agent details:", error);
       }
     };
-    if (userId) {
-      fetchAgentDetails();
-    }
-  });
+
+    fetchAgentDetails();
+  }, [userId, agentid, baseURL]); // Runs only when userId, agentid, and baseURL are all set
 
   const validateForm = () => {
     try {
