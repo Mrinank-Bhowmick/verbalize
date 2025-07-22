@@ -34,7 +34,7 @@ testchatbotroutes.post("/", async (c) => {
   c.header("Content-Type", "text/plain; charset=utf-8");
 
   const result = streamText({
-    model: google("gemini-1.5-pro-latest"),
+    model: google("gemini-2.5-flash"),
     system: systemInstruction,
     messages: userMessage,
   });

@@ -42,7 +42,7 @@ mascotroute.post("/", async (c) => {
   c.header("Content-Type", "text/plain; charset=utf-8");
 
   const result = streamText({
-    model: mem0("gemini-2.0-flash-exp", { user_id: user_id }),
+    model: mem0("gemini-2.5-flash", { user_id: user_id }),
     system: systemInstruction,
     messages: userMessage,
   });
