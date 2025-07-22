@@ -7,7 +7,6 @@ import Link from "next/link";
 
 const menuItems = [
   { name: "Demo", href: "#demo" },
-  { name: "About", href: "#" },
   { name: "Features", href: "#features" },
   { name: "FAQ", href: "#faq" },
 ];
@@ -20,7 +19,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md">
       <div className="mx-auto flex items-center justify-between px-8 py-4">
         <div className="flex items-center space-x-2">
           <Image

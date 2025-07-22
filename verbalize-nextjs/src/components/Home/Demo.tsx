@@ -36,7 +36,7 @@ const Demo = () => {
         });
       },
       {
-        threshold: 0.5,
+        threshold: 0.2,
       }
     );
     const currentRef = targetRef.current;
@@ -51,10 +51,20 @@ const Demo = () => {
   }, []);
 
   useEffect(() => {
+    if (isVisible && audioRef.current) {
+      audioRef.current.play().catch((error) => {
+        console.error("Audio play failed:", error);
+      });
+    }
+  }, [isVisible]);
+
+  useEffect(() => {
     if (systemInstruction) {
       const encoder = new Tiktoken(cl100k_base);
       const tokens = encoder.encode(systemInstruction!);
       setTokenCount(tokens.length);
+    } else {
+      setTokenCount(0);
     }
   }, [systemInstruction]);
 
