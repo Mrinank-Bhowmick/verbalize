@@ -110,6 +110,7 @@ const AgentPage = () => {
 
   useEffect(() => {
     validateForm();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [description, agentName, firstMessage]);
 
   const saveButton = async (e: MouseEvent) => {
