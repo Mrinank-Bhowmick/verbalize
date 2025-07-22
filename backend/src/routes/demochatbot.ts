@@ -52,12 +52,16 @@ demochatbotroute.post("/", async (c) => {
 
   const data = (await response.json()) as any;
   console.log(data);
+
+  // Uncomment it in production
+  /*
   if (!data.success) {
     return c.json({
       result: false,
       message: "Cloudflare captcha failed, Refresh page.",
     });
   }
+  */
   const userMessage = body.messages;
 
   // Set necessary headers
