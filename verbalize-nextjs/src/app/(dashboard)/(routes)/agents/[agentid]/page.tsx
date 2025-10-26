@@ -373,7 +373,8 @@ const AgentPage = () => {
               Delete
             </Button>
             {isDeployed && (
-              <div className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+              <div className="backdrop-blur-md bg-green-500/20 border border-green-400/30 text-green-700 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2 ">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 Deployed
               </div>
             )}
