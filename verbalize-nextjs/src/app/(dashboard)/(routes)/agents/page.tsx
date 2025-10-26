@@ -1,20 +1,7 @@
-"use client";
 import AgentsCard from "@/components/ui/agentsCard";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CiCirclePlus } from "react-icons/ci";
-import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import CreateAgentDialog from "./create-agent-dialog";
 
 type Agent = {
   agentId: string;
@@ -27,79 +14,40 @@ type Agent = {
   createdAt: string;
 };
 
-const AgentsPage = () => {
-  const [open, setOpen] = useState(false);
-  const [agentName, setAgentName] = useState("");
-  const [type, setType] = useState("Chatbot");
-  const [savedAgents, setSavedAgents] = useState<Agent[]>([]);
-  const [deployedAgents, setDeployedAgents] = useState<Agent[]>([]);
-  const { userId } = useAuth();
+async function getAgents(userId: string): Promise<Agent[]> {
   const baseURL =
     process.env.NODE_ENV === "development"
       ? "http://127.0.0.1:8787"
       : "https://verbalize-api.mrinank-ai.tech";
 
-  useEffect(() => {
-    async function fetchAgents(url: string) {
-      const response = await fetch(url);
-      const data = (await response.json()) as Agent[];
+  try {
+    const response = await fetch(`${baseURL}/clients/${userId}/agents`, {
+      cache: "no-store",
+    });
 
-      data.forEach((e) => {
-        if (e.isDeployed) {
-          setDeployedAgents((prev) => [...prev, e]);
-        } else {
-          setSavedAgents((prev) => [...prev, e]);
-        }
-      });
-    }
-    if (userId) {
-      console.log("Fetching agents for user:", userId);
-      fetchAgents(`${baseURL}/clients/${userId}/agents`);
-    }
-  }, [userId, baseURL]);
-
-  const createAgent = async () => {
-    if (!agentName.trim()) {
-      alert("Please enter an agent name");
-      return;
+    if (!response.ok) {
+      console.error(`Failed to fetch agents: ${response.status}`);
+      return [];
     }
 
-    // Generate a unique agent ID
-    const agentId = `${agentName
-      .toLowerCase()
-      .replace(/\s+/g, "-")}-${Date.now()}`;
+    const data = (await response.json()) as Agent[];
+    return data;
+  } catch (error) {
+    console.error("Error fetching agents:", error);
+    return [];
+  }
+}
 
-    try {
-      const response = await fetch(`${baseURL}/clients/${userId}/agents`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          agentId: agentId,
-          clientId: userId,
-          agentName: agentName,
-          description: "New chatbot description",
-          firstMessage: "Hello! How can I help you today?",
-          systemInstruction: null,
-        }),
-      });
+const AgentsPage = async () => {
+  const { userId } = await auth();
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+  if (!userId) {
+    redirect("/sign-in");
+  }
 
-      const result = await response.json();
-      console.log("Agent created successfully:", result);
-
-      // Close dialog and redirect to the new agent page
-      setOpen(false);
-      window.location.href = `/agents/${agentId}`;
-    } catch (error) {
-      console.error("Error creating agent:", error);
-      alert("Failed to create agent. Please try again.");
-    }
-  };
+  const agents = await getAgents(userId);
+  const deployedAgents = agents.filter((agent) => agent.isDeployed);
+  const savedAgents = agents.filter((agent) => !agent.isDeployed);
 
   return (
     <div className="h-full">
@@ -109,65 +57,12 @@ const AgentsPage = () => {
       <div>
         <div className="text-2xl p-4 font-bold">Deployed</div>
         <div className="flex gap-4 p-4 flex-wrap ">
-          <div className="bg-gradient-to-b from-gray-200 to-gray-400 p-6 rounded-lg h-[40vh] w-[30vh] flex flex-col justify-center items-center">
-            <CiCirclePlus size={70} className="h-3/4" />
-            <div className="h-1/4 flex items-end">
-              <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline">Create</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>New Chatbot</DialogTitle>
-                    <DialogDescription>
-                      Fill in the details below to create a new chatbot
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="flex flex-col space-y-4 py-4">
-                    <div className="flex items-center space-x-4">
-                      <Label htmlFor="name" className="w-20 text-right">
-                        Name
-                      </Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        placeholder="Chatbot Name"
-                        className="flex-1"
-                        value={agentName}
-                        onChange={(e) => setAgentName(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <Label htmlFor="type" className="w-20 text-right">
-                        Type
-                      </Label>
-                      <select
-                        id="type"
-                        className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        value={type}
-                        onChange={(e) => setType(e.target.value)}
-                      >
-                        <option value="Chatbot">Chatbot</option>
-                        <option value="disabled" disabled>
-                          Agent (Coming Soon)
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="button" onClick={createAgent}>
-                      Create
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
+          <CreateAgentDialog userId={userId} />
           <div className="flex flex-wrap gap-4">
-            {deployedAgents.map((val, key) => {
+            {deployedAgents.map((val) => {
               return (
                 <AgentsCard
-                  key={key}
+                  key={val.agentId}
                   agentName={val.agentName}
                   agentID={val.agentId}
                 />
@@ -178,10 +73,10 @@ const AgentsPage = () => {
         <div>
           <div className="text-2xl p-4 font-bold">Saved Chatbots</div>
           <div className="flex flex-wrap gap-4 p-4">
-            {savedAgents.map((val, key) => {
+            {savedAgents.map((val) => {
               return (
                 <AgentsCard
-                  key={key}
+                  key={val.agentId}
                   agentName={val.agentName}
                   agentID={val.agentId}
                 />
