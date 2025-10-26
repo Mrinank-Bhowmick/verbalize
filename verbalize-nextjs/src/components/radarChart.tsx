@@ -1,13 +1,11 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -17,30 +15,41 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 285 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 203 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 264 },
-];
+
+interface AgentStat {
+  agentId: string;
+  agentName: string;
+  conversations: number;
+  tokens: number;
+  messages: number;
+}
+
+interface RadarChartProps {
+  data: AgentStat[];
+}
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  conversations: {
+    label: "Conversations",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
 
-export function RadarChartComponent() {
+export function RadarChartComponent({ data }: RadarChartProps) {
+  // Format data for radar chart - take top 6 agents
+  const chartData = data.slice(0, 6).map((item) => ({
+    agent:
+      item.agentName.length > 15
+        ? item.agentName.slice(0, 15) + "..."
+        : item.agentName,
+    conversations: item.conversations,
+  }));
+
   return (
     <Card>
       <CardHeader className="items-center pb-4">
-        <CardTitle>Radar Chart - Grid Filled</CardTitle>
-        <CardDescription>
-          Showing total visitors for the last 6 months
-        </CardDescription>
+        <CardTitle>Agent Performance</CardTitle>
+        <CardDescription>Conversations per agent (top 6)</CardDescription>
       </CardHeader>
       <CardContent className="pb-0">
         <ChartContainer
@@ -52,24 +61,16 @@ export function RadarChartComponent() {
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
-            <PolarGrid className="fill-[--color-desktop] opacity-20" />
-            <PolarAngleAxis dataKey="month" />
+            <PolarGrid className="fill-[--color-conversations] opacity-20" />
+            <PolarAngleAxis dataKey="agent" />
             <Radar
-              dataKey="desktop"
-              fill="var(--color-desktop)"
+              dataKey="conversations"
+              fill="var(--color-conversations)"
               fillOpacity={0.5}
             />
           </RadarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="flex items-center gap-2 leading-none text-muted-foreground">
-          January - June 2024
-        </div>
-      </CardFooter>
     </Card>
   );
 }

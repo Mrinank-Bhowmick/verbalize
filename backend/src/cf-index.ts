@@ -6,6 +6,7 @@ import testChatbotRoutes from "./routes/testChatbot";
 import agentsRoutes from "./routes/agents";
 import demochatbotroute from "./routes/demochatbot";
 import mascotroute from "./routes/mascot";
+import analyticsRoutes from "./routes/analytics";
 
 export type Bindings = {
   DB: D1Database;
@@ -41,5 +42,6 @@ app.route("/testchatbot", testChatbotRoutes);
 app.route("/clients/:clientId/agents", agentsRoutes);
 app.route("/demochatbot", demochatbotroute);
 app.route("/mascot", mascotroute);
+app.route("/analytics", analyticsRoutes);
 
 export default app;

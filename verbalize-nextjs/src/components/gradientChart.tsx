@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -16,33 +15,45 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
+
+interface TrendData {
+  date: string;
+  conversations: number;
+  tokens: number;
+}
+
+interface GradientChartProps {
+  data: TrendData[];
+}
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  conversations: {
+    label: "Conversations",
     color: "hsl(var(--chart-1))",
   },
-  mobile: {
-    label: "Mobile",
+  tokens: {
+    label: "Tokens (K)",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
-export function GradientChartComponent() {
+export function GradientChartComponent({ data }: GradientChartProps) {
+  // Format data for the chart
+  const chartData = data.map((item) => ({
+    date: new Date(item.date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    }),
+    conversations: item.conversations,
+    tokens: Math.round(item.tokens / 1000), // Convert to thousands for better display
+  }));
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Monthly Visitors</CardTitle>
+        <CardTitle>7-Day Conversation Trends</CardTitle>
         <CardDescription>
-          Showing total visitors combining all chatbots
+          Daily conversations and token usage (in thousands)
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -57,70 +68,63 @@ export function GradientChartComponent() {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient
+                id="fillConversations"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
                 <stop
                   offset="5%"
-                  stopColor="var(--color-desktop)"
+                  stopColor="var(--color-conversations)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-desktop)"
+                  stopColor="var(--color-conversations)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillTokens" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-mobile)"
+                  stopColor="var(--color-tokens)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-mobile)"
+                  stopColor="var(--color-tokens)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
             </defs>
             <Area
-              dataKey="mobile"
+              dataKey="conversations"
               type="natural"
-              fill="url(#fillMobile)"
+              fill="url(#fillConversations)"
               fillOpacity={0.4}
-              stroke="var(--color-mobile)"
+              stroke="var(--color-conversations)"
               stackId="a"
             />
             <Area
-              dataKey="desktop"
+              dataKey="tokens"
               type="natural"
-              fill="url(#fillDesktop)"
+              fill="url(#fillTokens)"
               fillOpacity={0.4}
-              stroke="var(--color-desktop)"
+              stroke="var(--color-tokens)"
               stackId="a"
             />
           </AreaChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            {/* <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
-            </div> */}
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
