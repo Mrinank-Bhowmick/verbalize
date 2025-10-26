@@ -25,10 +25,15 @@ const AgentSchema = z.object({
 const agentsRoutes = new Hono<{ Bindings: Bindings }>();
 
 // CORS for agents route - allow frontend and embedded chatbot
+const allowedOrigin =
+  process.env.NODE_ENV === "production"
+    ? "https://verbalize.mrinank-ai.tech"
+    : "*";
+
 agentsRoutes.use(
   "*",
   cors({
-    origin: "*", // Allow all for chatbot fetching agent data
+    origin: allowedOrigin,
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: false,

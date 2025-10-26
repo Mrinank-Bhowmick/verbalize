@@ -32,7 +32,6 @@ mascotroute.post("/", async (c) => {
   });
 
   const body = await c.req.json();
-  console.log("here", body);
 
   const { user_id, systemInstruction } = body;
   const userMessage = body.messages;

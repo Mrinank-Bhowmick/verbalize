@@ -15,3 +15,19 @@ export const Agents = sqliteTable("Agents", {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
+
+export const Analytics = sqliteTable("Analytics", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  agentId: text("agentId").notNull(),
+  clientIP: text("clientIP").notNull(),
+  sessionId: text("sessionId").notNull(),
+  totalTokensUsed: integer("totalTokensUsed").default(0).notNull(),
+  messageHistory: text("messageHistory").notNull(),
+  conversationCount: integer("conversationCount").default(1).notNull(),
+  lastUpdated: text("lastUpdated")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  createdAt: text("createdAt")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});

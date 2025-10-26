@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { FaRobot, FaTimes } from "react-icons/fa";
 import { useChat } from "@ai-sdk/react";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { getFingerprint } from "@thumbmarkjs/thumbmarkjs";
+//import { getFingerprint } from "@thumbmarkjs/thumbmarkjs";
 
 interface chatbotProps {
   firstMessage: string;
@@ -25,37 +25,41 @@ const ChatbotButton = ({
 }: chatbotProps) => {
   const [showChat, setShowChat] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [fingerprint, setFingerprint] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string>("");
+  //const [fingerprint, setFingerprint] = useState<string | null>(null);
 
+  // Generate sessionId when component mounts
   useEffect(() => {
-    const fetchFingerprint = async () => {
-      const fp = await getFingerprint();
-      setFingerprint(fp);
-    };
-
-    fetchFingerprint();
+    if (typeof window !== "undefined" && window.crypto) {
+      setSessionId(crypto.randomUUID());
+    }
   }, []);
+
+  // useEffect(() => {
+  //   const fetchFingerprint = async () => {
+  //     const fp = await getFingerprint();
+  //     setFingerprint(fp);
+  //   };
+
+  //   fetchFingerprint();
+  // }, []);
 
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     api: api,
     initialMessages: [{ id: "0", role: "assistant", content: firstMessage }],
     body: {
       agentID: agentID,
+      sessionId: sessionId,
       systemInstruction: systemInstruction
         ? systemInstruction
         : `Your name is ${agentName}. Description about you - ${description}`,
       turnstileToken: turnstileToken,
-      browserFingerprint: fingerprint,
     },
   });
   // Add a custom submit handler to debug
   const debugSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted");
-    console.log("API endpoint:", api);
-    console.log("Input:", input);
-    console.log("Turnstile token:", turnstileToken);
-
+    //console.log("Submitting message with sessionId:", sessionId);
     // Call the original handler
     handleSubmit(e);
   };
@@ -112,7 +116,7 @@ const ChatbotButton = ({
               </div>
             )}
           </div>
-          <div className="p-4 border-t border-gray-200 bg-white">
+          <div className="p-4 border-t border-gray-200 bg-white text-black">
             {!turnstileToken ? (
               <Turnstile
                 siteKey="0x4AAAAAABCeVBWNr19klCWD"

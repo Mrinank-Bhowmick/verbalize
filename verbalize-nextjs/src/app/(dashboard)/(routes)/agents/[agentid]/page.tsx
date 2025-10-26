@@ -373,8 +373,8 @@ const AgentPage = () => {
               Delete
             </Button>
             {isDeployed && (
-              <div className="backdrop-blur-md bg-green-500/20 border border-green-400/30 text-green-300 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2 ">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              <div className="backdrop-blur-md bg-white/55 text-green-400 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
                 Deployed
               </div>
             )}
@@ -382,13 +382,13 @@ const AgentPage = () => {
           <div className="flex gap-4">
             <Button
               onClick={(e) => saveButton(e)}
-              className="bg-black hover:bg-gray-900 text-yellow-400 text-lg px-6 py-2 border border-yellow-400"
+              className="bg-green-500 hover:bg-gray-900 text-white text-lg px-6 py-2 border border-yellow-400"
             >
               Save
             </Button>
             <Button
               onClick={(e) => deployButton(e)}
-              className="bg-black hover:bg-gray-900 text-yellow-400 text-lg px-6 py-2 border border-yellow-400"
+              className="bg-black hover:bg-gray-900 text-white text-lg px-6 py-2 border border-yellow-400"
             >
               {isDeployed ? "Undeploy" : "Deploy"}
             </Button>
