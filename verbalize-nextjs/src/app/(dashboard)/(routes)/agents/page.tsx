@@ -45,12 +45,12 @@ const AgentsPage = async () => {
   const savedAgents = agents.filter((agent) => !agent.isDeployed);
 
   return (
-    <div className="h-full">
-      <div className="font-extrabold text-4xl text-center mt-[5vh] mb-[5vh]">
+    <div className="h-full bg-black min-h-screen">
+      <div className="font-extrabold text-4xl text-center mt-[5vh] mb-[5vh] text-yellow-400">
         Agents Arena
       </div>
       <div>
-        <div className="text-2xl p-4 font-bold">Deployed</div>
+        <div className="text-2xl p-4 font-bold text-yellow-400">Deployed</div>
         <div className="flex gap-4 p-4 flex-wrap ">
           <CreateAgentDialog userId={userId} />
           <div className="flex flex-wrap gap-4">
@@ -66,7 +66,9 @@ const AgentsPage = async () => {
           </div>
         </div>
         <div>
-          <div className="text-2xl p-4 font-bold">Saved Chatbots</div>
+          <div className="text-2xl p-4 font-bold text-yellow-400">
+            Saved Chatbots
+          </div>
           <div className="flex flex-wrap gap-4 p-4">
             {savedAgents.map((val) => {
               return (

@@ -16,9 +16,9 @@ export default function DashboardLayout({
 }>) {
   return (
     <ClerkProvider>
-      <div className="h-full relative">
+      <div className="h-full relative bg-black brightness-85">
         <Sidebar />
-        <div className="md:ml-68 ml-20 mt-2 mr-2 bg-gray-100 p-2 rounded-xl min-h-screen">
+        <div className="md:ml-68 ml-20 mt-3 mr-2 bg-black p-2 rounded-xl  border-4 border-yellow-500 min-h-screen">
           {children}
           <SpeedInsights />
           <Analytics />

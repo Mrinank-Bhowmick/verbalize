@@ -352,7 +352,7 @@ const AgentPage = () => {
   };
 
   return (
-    <div>
+    <div className="bg-black min-h-screen text-yellow-50">
       <div>
         <ChatbotButton
           firstMessage={firstMessage}
@@ -364,7 +364,7 @@ const AgentPage = () => {
         />
       </div>
       <div className="flex flex-col justify-center items-center">
-        <div className="fixed top-6 flex flex-wrap gap-2 justify-between bg-amber-200/90 transition-all w-4/6 py-2 px-4 rounded-2xl">
+        <div className="fixed top-6 flex flex-wrap gap-2 justify-between bg-yellow-400/90 transition-all w-4/6 py-2 px-4 rounded-2xl shadow-lg border-2 border-yellow-500">
           <div className="flex gap-2 items-center">
             <Button
               onClick={(e) => deleteButton(e)}
@@ -373,7 +373,7 @@ const AgentPage = () => {
               Delete
             </Button>
             {isDeployed && (
-              <div className="backdrop-blur-md bg-green-500/20 border border-green-400/30 text-green-700 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2 ">
+              <div className="backdrop-blur-md bg-green-500/20 border border-green-400/30 text-green-300 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2 ">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 Deployed
               </div>
@@ -382,32 +382,37 @@ const AgentPage = () => {
           <div className="flex gap-4">
             <Button
               onClick={(e) => saveButton(e)}
-              className="bg-white hover:bg-black hover:text-white text-black text-lg px-6 py-2 border border-yellow-400"
+              className="bg-black hover:bg-gray-900 text-yellow-400 text-lg px-6 py-2 border border-yellow-400"
             >
               Save
             </Button>
             <Button
               onClick={(e) => deployButton(e)}
-              className="bg-amber-400 hover:bg-white text-black text-lg px-6 py-2 border border-yellow-600"
+              className="bg-black hover:bg-gray-900 text-yellow-400 text-lg px-6 py-2 border border-yellow-400"
             >
               {isDeployed ? "Undeploy" : "Deploy"}
             </Button>
           </div>
         </div>
         <div className="flex flex-col items-center gap-4 mt-20 mb-5">
-          <div className="text-2xl font-bold">General Information</div>
-          <div>General Information about your chatbot</div>
+          <div className="text-2xl font-bold text-yellow-400">
+            General Information
+          </div>
+          <div className="text-yellow-100">
+            General Information about your chatbot
+          </div>
         </div>
-        <BsRobot size={100} className="mt-10 mb-10" />
+        <BsRobot size={100} className="mt-10 mb-10 text-yellow-400" />
         <div>
           <div>
             <div className="flex flex-wrap gap-8">
               <div className="flex flex-col gap-2">
-                <div className="font-bold">Name</div>
+                <div className="font-bold text-yellow-400">Name</div>
                 <Input
                   value={agentName}
                   type="text"
                   placeholder="Your chatbot name"
+                  className="bg-gray-900 text-yellow-50 border-yellow-400"
                   onChange={(e) => {
                     setAgentName(e.target.value);
                   }}
@@ -415,18 +420,19 @@ const AgentPage = () => {
                 {erros.agentName && (
                   <div className="text-red-500 text-sm">{erros.agentName}</div>
                 )}
-                <div className="text-sm text-gray-700 italic ">
+                <div className="text-sm text-yellow-100 italic ">
                   This is how your Al chatbot will be named.
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <div className="font-bold flex items-end gap-1">
+                <div className="font-bold flex items-end gap-1 text-yellow-400">
                   Description <div className="text-sm">(few words)</div>
                 </div>
                 <Input
                   value={description}
                   type="text"
                   placeholder="Short description"
+                  className="bg-gray-900 text-yellow-50 border-yellow-400"
                   onChange={(e) => {
                     setDescription(e.target.value);
                   }}
@@ -436,18 +442,19 @@ const AgentPage = () => {
                     {erros.description}
                   </div>
                 )}
-                <div className="text-sm text-gray-700 italic">
+                <div className="text-sm text-yellow-100 italic">
                   This is a short description about your chatbot.
                 </div>
               </div>
             </div>
           </div>
           <div className="flex flex-col gap-2 mt-5 mb-5">
-            <div className="font-bold">First Message</div>
+            <div className="font-bold text-yellow-400">First Message</div>
             <Input
               value={firstMessage}
               type="text"
               placeholder="Hey, how can I help you?"
+              className="bg-gray-900 text-yellow-50 border-yellow-400"
               onChange={(e) => {
                 setFirstMessage(e.target.value);
               }}
@@ -455,22 +462,26 @@ const AgentPage = () => {
             {erros.firstMessage && (
               <div className="text-red-500 text-sm">{erros.firstMessage}</div>
             )}
-            <div className="text-sm text-gray-700 italic">
+            <div className="text-sm text-yellow-100 italic">
               First message that will appear by default on chat window.
             </div>
           </div>
           <div className="flex flex-col gap-4 mt-10 mb-5">
-            <div className="font-bold text-xl">Configuration</div>
-            <div className="text-gray-700 italic">
+            <div className="font-bold text-xl text-yellow-400">
+              Configuration
+            </div>
+            <div className="text-yellow-100 italic">
               Detailed instructions for AI Behavior
             </div>
-            <div className="font-bold">System Instruction (optional)</div>
-            <div className="text-gray-500 text-sm">
+            <div className="font-bold text-yellow-400">
+              System Instruction (optional)
+            </div>
+            <div className="text-yellow-200 text-sm">
               Input token usage - {tokenCount}/150 tokens
             </div>
 
             <Textarea
-              className="w-[45vw] h-[40vh]"
+              className="w-[45vw] h-[40vh] bg-gray-900 text-yellow-50 border-yellow-400"
               placeholder={systemInstructionTemplate}
               value={systemInstruction || ""}
               onChange={(e) => {
@@ -481,19 +492,19 @@ const AgentPage = () => {
 
           {/* Embed Code Section - Only show when deployed */}
           {isDeployed && (
-            <div className="flex flex-col gap-4 mt-10 mb-5 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
+            <div className="flex flex-col gap-4 mt-10 mb-5 p-6 bg-gradient-to-r from-gray-900 to-black rounded-lg border-2 border-yellow-400">
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-2">
-                  <div className="font-bold text-xl text-green-700 flex items-center gap-2">
+                  <div className="font-bold text-xl text-yellow-400 flex items-center gap-2">
                     🎉 Your Chatbot is Live!
                   </div>
-                  <div className="text-gray-700 italic">
+                  <div className="text-yellow-100 italic">
                     Copy and paste this code into your website
                   </div>
                 </div>
                 <Button
                   onClick={copyEmbedCode}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 flex items-center gap-2"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 flex items-center gap-2"
                 >
                   {copySuccess ? (
                     <>
@@ -508,11 +519,11 @@ const AgentPage = () => {
               </div>
 
               <div className="relative">
-                <div className="absolute top-2 right-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                <div className="absolute top-2 right-2 text-xs text-yellow-400 bg-gray-800 px-2 py-1 rounded">
                   HTML
                 </div>
                 <Textarea
-                  className="w-full h-[30vh] font-mono text-sm bg-gray-900 text-green-400 border-green-500"
+                  className="w-full h-[30vh] font-mono text-sm bg-gray-900 text-yellow-400 border-yellow-500"
                   value={generateEmbedCode()}
                   readOnly
                   onClick={(e) => {
@@ -521,8 +532,8 @@ const AgentPage = () => {
                 />
               </div>
 
-              <div className="flex flex-col gap-2 text-sm text-gray-600">
-                <div className="font-semibold text-gray-800">
+              <div className="flex flex-col gap-2 text-sm text-yellow-100">
+                <div className="font-semibold text-yellow-400">
                   📋 Integration Instructions:
                 </div>
                 <ol className="list-decimal list-inside space-y-1 ml-2">
@@ -531,7 +542,7 @@ const AgentPage = () => {
                   </li>
                   <li>
                     Paste it before the closing{" "}
-                    <code className="bg-gray-200 px-1 rounded">
+                    <code className="bg-gray-800 px-1 rounded text-yellow-400">
                       &lt;/body&gt;
                     </code>{" "}
                     tag in your HTML file
@@ -539,7 +550,9 @@ const AgentPage = () => {
                   <li>The chatbot will appear in the bottom-right corner</li>
                   <li>
                     Customize the position by modifying the{" "}
-                    <code className="bg-gray-200 px-1 rounded">style</code>{" "}
+                    <code className="bg-gray-800 px-1 rounded text-yellow-400">
+                      style
+                    </code>{" "}
                     attribute
                   </li>
                 </ol>

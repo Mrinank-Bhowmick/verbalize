@@ -82,12 +82,14 @@ export default function CreateAgentDialog({ userId }: CreateAgentDialogProps) {
   };
 
   return (
-    <div className="bg-gradient-to-b from-gray-200 to-gray-400 p-6 rounded-lg h-[40vh] w-[30vh] flex flex-col justify-center items-center">
-      <CiCirclePlus size={70} className="h-3/4" />
+    <div className="bg-gradient-to-b from-black to-gray-900 p-6 rounded-lg h-[40vh] w-[30vh] flex flex-col justify-center items-center border-2 border-yellow-400 shadow-lg hover:shadow-yellow-500/50 transition-all">
+      <CiCirclePlus size={70} className="h-3/4 text-yellow-400" />
       <div className="h-1/4 flex items-end">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline">Create</Button>
+            <Button className="bg-yellow-400 text-black hover:bg-yellow-500 border border-yellow-300">
+              Create
+            </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>

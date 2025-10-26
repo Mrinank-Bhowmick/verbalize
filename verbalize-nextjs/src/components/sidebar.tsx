@@ -12,15 +12,15 @@ const Sidebar = () => {
 
   return (
     <div
-      className="fixed top-0 flex-col h-full bg-amber-200 mt-2 ml-2 rounded-xl transition-all duration-300
+      className="fixed top-0 flex-col h-full bg-yellow-400 border-r-2 border-yellow-500 mt-1 ml-2 rounded-xl transition-all duration-300 shadow-lg
                     w-16 md:w-64 p-2 md:p-8"
     >
       {/* Logo/Title area */}
-      <div className="hidden md:block font-extrabold text-3xl mb-15">
+      <div className="hidden md:block font-extrabold text-3xl mb-15 text-black">
         Verbalize
       </div>
       <div className="flex md:hidden justify-center items-center mt-4 mb-8">
-        <BsRobot size={40} />
+        <BsRobot size={40} className="text-black" />
       </div>
 
       {/* Menu items */}
@@ -30,8 +30,8 @@ const Sidebar = () => {
             href={item.href}
             key={index}
             className="flex items-center justify-center md:justify-start gap-3 p-4 w-full rounded-lg transition-all duration-200 
-            hover:bg-amber-300 hover:shadow-md 
-            active:bg-amber-400 active:scale-95 "
+            text-black hover:bg-black hover:text-yellow-400 hover:shadow-md 
+            active:bg-gray-900 active:scale-95 "
           >
             {item.icon}
             <span className="hidden md:inline">{item.label}</span>
