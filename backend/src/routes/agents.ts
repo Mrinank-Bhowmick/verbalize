@@ -19,11 +19,21 @@ const AgentSchema = z.object({
   description: z.string().min(15).max(30),
   firstMessage: z.string().min(1, { message: "First message is required" }),
   systemInstruction: z.string().nullable(),
+  isDeployed: z.number().optional(),
 });
 
 const agentsRoutes = new Hono<{ Bindings: Bindings }>();
 
-agentsRoutes.use(cors());
+// CORS for agents route - allow frontend and embedded chatbot
+agentsRoutes.use(
+  "*",
+  cors({
+    origin: "*", // Allow all for chatbot fetching agent data
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    credentials: false,
+  })
+);
 
 // Get all agents for a client
 // http://localhost:8000/clients/client123/agents
@@ -115,10 +125,47 @@ agentsRoutes.post("/", async (c) => {
   return c.json(success[0], 201);
 });
 
-// Update an agent
-agentsRoutes.put("/:agentId", async (c) => {});
+// Update/save the new agent
+agentsRoutes.put("/:agentId", async (c) => {
+  const agentId = c.req.param("agentId");
+  const body = await c.req.json();
+
+  const result = AgentSchema.safeParse(body);
+
+  if (!result.success) {
+    return c.json(
+      {
+        error: "Validation failed",
+      },
+      400
+    );
+  }
+
+  const validData = result.data;
+
+  // cf d1
+  const db = drizzle(c.env.DB);
+  //
+
+  const success = await db
+    .update(Agents)
+    .set(validData)
+    .where(eq(Agents.agentId, agentId))
+    .returning();
+
+  return c.json(success[0], 200);
+});
 
 // Delete an agent
-agentsRoutes.delete("/:agentId", async (c) => {});
+agentsRoutes.delete("/:agentId", async (c) => {
+  const agentId = c.req.param("agentId");
+
+  // cf d1
+  const db = drizzle(c.env.DB);
+  //
+  await db.delete(Agents).where(eq(Agents.agentId, agentId));
+
+  return c.json({ message: "Agent deleted successfully" }, 200);
+});
 
 export default agentsRoutes;

@@ -11,6 +11,7 @@ interface chatbotProps {
   description: string;
   agentID: string;
   isEmbedded?: boolean;
+  apiUrl?: string; // Add API URL prop
 }
 
 export default function ChatbotButton({
@@ -20,11 +21,26 @@ export default function ChatbotButton({
   description,
   agentID,
   isEmbedded = false,
+  apiUrl,
 }: chatbotProps) {
   const [showChat, setShowChat] = useState(false);
+
+  // Determine API URL based on environment or prop
+  const chatApiUrl =
+    apiUrl ||
+    (process.env.NODE_ENV === "development"
+      ? "http://127.0.0.1:8787/testchatbot"
+      : "https://verbalize-api.mrinank-ai.tech/testchatbot");
+
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: "http://127.0.0.1:8787/testchatbot",
-    initialInput: firstMessage,
+    api: chatApiUrl,
+    initialMessages: [
+      {
+        id: "initial",
+        role: "assistant",
+        content: firstMessage,
+      },
+    ],
     body: {
       agentID: agentID,
       systemInstruction: systemInstruction
@@ -63,20 +79,12 @@ export default function ChatbotButton({
             </button>
           </div>
           <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-            {messages.length === 0 && firstMessage === "" ? (
+            {messages.length === 0 ? (
               <p className="text-gray-500 italic text-center mt-4">
                 Ask me anything...
               </p>
             ) : (
               <div>
-                <div className="mb-3 text-left">
-                  <div className="text-xs font-medium text-gray-500 mb-1">
-                    {agentName}
-                  </div>
-                  <span className="inline-block px-4 py-2 rounded-lg bg-gray-200 text-gray-800 shadow-sm">
-                    {firstMessage}
-                  </span>
-                </div>
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -91,13 +99,11 @@ export default function ChatbotButton({
                           : "bg-gray-200 text-gray-800"
                       }`}
                     >
-                      <div
-                        className={`text-xs font-medium text-gray-500 mb-1 ${
-                          message.role === "user" ? "hidden" : ""
-                        }`}
-                      >
-                        {agentName}
-                      </div>
+                      {message.role === "assistant" && (
+                        <div className="text-xs font-medium text-gray-500 mb-1">
+                          {agentName}
+                        </div>
+                      )}
                       {message.content}
                     </span>
                   </div>
@@ -127,7 +133,7 @@ export default function ChatbotButton({
       ) : (
         <button
           onClick={() => setShowChat(true)}
-          className="bg-black text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110"
+          className="bg-gray-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110"
           aria-label="Open chat"
         >
           <FaRobot className="text-2xl" />

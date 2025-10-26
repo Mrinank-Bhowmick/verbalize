@@ -2,6 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { useParams } from "next/navigation";
 import { BsRobot } from "react-icons/bs";
+import { FaCheck, FaCopy } from "react-icons/fa";
 import { useState, useEffect, MouseEvent } from "react";
 import ChatbotButton from "@/components/chatbotbutton";
 import { z } from "zod";
@@ -33,8 +34,10 @@ const AgentPage = () => {
   const [systemInstruction, setSystemInstruction] = useState<string | null>(
     null
   );
+  const [isDeployed, setIsDeployed] = useState<boolean>(false);
   const [erros, setErrors] = useState<Record<string, string>>({});
   const [tokenCount, setTokenCount] = useState<number>(0);
+  const [copySuccess, setCopySuccess] = useState<string>("");
 
   useEffect(() => {
     if (systemInstruction) {
@@ -64,6 +67,7 @@ const AgentPage = () => {
         setDescription(data.description || "");
         setFirstMessage(data.firstMessage || "");
         setSystemInstruction(data.systemInstruction || "");
+        setIsDeployed(data.isDeployed === 1 || false);
       } catch (error) {
         console.error("Error fetching agent details:", error);
       }
@@ -110,41 +114,201 @@ const AgentPage = () => {
 
   useEffect(() => {
     validateForm();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [description, agentName, firstMessage]);
+
+  // Generate embed code for the chatbot
+  const generateEmbedCode = () => {
+    const embedUrl = `${window.location.origin}/chatbot?agentId=${agentid}&clientId=${userId}`;
+
+    return `<!-- Verbalize Chatbot Embed Code -->
+<iframe 
+  id="verbalize-chatbot-${agentid}"
+  src="${embedUrl}"
+  style="position: fixed; bottom: 20px; right: 20px; width: 400px; height: 500px; border: none; z-index: 9999; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+  allow="clipboard-read; clipboard-write"
+  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+></iframe>
+
+<script>
+  // Optional: Listen for chatbot events
+  window.addEventListener('message', function(event) {
+    if (event.data === 'chatbot-opened') {
+      console.log('Chatbot opened');
+    }
+    if (event.data === 'chatbot-closed') {
+      console.log('Chatbot closed');
+    }
+  });
+</script>`;
+  };
+
+  const copyEmbedCode = async () => {
+    try {
+      await navigator.clipboard.writeText(generateEmbedCode());
+      setCopySuccess("Copied!");
+      setTimeout(() => setCopySuccess(""), 2000);
+    } catch (err) {
+      setCopySuccess("Failed to copy");
+      console.error("Failed to copy:", err);
+    }
+  };
 
   const saveButton = async (e: MouseEvent) => {
     e.preventDefault();
-    console.log(
-      JSON.stringify({
-        agentId: agentid,
-        clientId: userId,
-        agentName: agentName,
-        firstMessage: firstMessage,
-        systemInstruction: systemInstruction,
-        description: description,
-      })
-    );
-    return;
-    const response = fetch(
-      "http://127.0.0.1:8787/clients/:clientId/agents/:agentId/save",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          agentId: agentid,
-          clientId: userId,
-          agentName: agentName,
-          firstMessage: firstMessage,
-          systemInstruction: systemInstruction,
-          description: description,
-        }),
+
+    // Validate form before saving
+    if (!validateForm()) {
+      alert("Please fix the validation errors before saving.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${baseURL}/clients/${userId}/agents/${agentid}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            agentId: agentid,
+            clientId: userId,
+            agentName: agentName,
+            firstMessage: firstMessage,
+            systemInstruction: systemInstruction,
+            description: description,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
+      const result = await response.json();
+      console.log("Agent saved successfully:", result);
+      alert("Agent saved successfully!");
+    } catch (error) {
+      console.error("Error saving agent:", error);
+      alert("Failed to save agent. Please try again.");
+    }
+  };
+
+  const deleteButton = async (e: MouseEvent) => {
+    e.preventDefault();
+
+    const confirmDelete = confirm(
+      `Are you sure you want to delete "${agentName}"? This action cannot be undone.`
     );
 
-    console.log(response);
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(
+        `${baseURL}/clients/${userId}/agents/${agentid}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      alert("Agent deleted successfully!");
+      // Redirect to agents page after deletion
+      window.location.href = "/agents";
+    } catch (error) {
+      console.error("Error deleting agent:", error);
+      alert("Failed to delete agent. Please try again.");
+    }
+  };
+
+  const deployButton = async (e: MouseEvent) => {
+    e.preventDefault();
+
+    // If already deployed, undeploy it
+    if (isDeployed) {
+      const confirmUndeploy = confirm(
+        `Are you sure you want to undeploy "${agentName}"?`
+      );
+
+      if (!confirmUndeploy) return;
+
+      try {
+        const response = await fetch(
+          `${baseURL}/clients/${userId}/agents/${agentid}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              agentId: agentid,
+              clientId: userId,
+              agentName: agentName,
+              firstMessage: firstMessage,
+              systemInstruction: systemInstruction,
+              description: description,
+              isDeployed: 0, // Set deployment flag to false
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("Agent undeployed successfully:", result);
+        setIsDeployed(false);
+        alert("Agent undeployed successfully!");
+      } catch (error) {
+        console.error("Error undeploying agent:", error);
+        alert("Failed to undeploy agent. Please try again.");
+      }
+      return;
+    }
+
+    // Validate form before deploying
+    if (!validateForm()) {
+      alert("Please fix the validation errors before deploying.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${baseURL}/clients/${userId}/agents/${agentid}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            agentId: agentid,
+            clientId: userId,
+            agentName: agentName,
+            firstMessage: firstMessage,
+            systemInstruction: systemInstruction,
+            description: description,
+            isDeployed: 1, // Set deployment flag to true
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Agent deployed successfully:", result);
+      setIsDeployed(true);
+      alert("Agent deployed successfully!");
+    } catch (error) {
+      console.error("Error deploying agent:", error);
+      alert("Failed to deploy agent. Please try again.");
+    }
   };
 
   return (
@@ -161,8 +325,18 @@ const AgentPage = () => {
       </div>
       <div className="flex flex-col justify-center items-center">
         <div className="fixed top-6 flex flex-wrap gap-2 justify-between bg-amber-200/90 transition-all w-4/6 py-2 px-4 rounded-2xl">
-          <div>
-            <Button className="bg-red-600">Delete</Button>
+          <div className="flex gap-2 items-center">
+            <Button
+              onClick={(e) => deleteButton(e)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </Button>
+            {isDeployed && (
+              <div className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                Deployed
+              </div>
+            )}
           </div>
           <div className="flex gap-4">
             <Button
@@ -171,8 +345,11 @@ const AgentPage = () => {
             >
               Save
             </Button>
-            <Button className="bg-amber-400 hover:bg-white text-black text-lg px-6 py-2 border border-yellow-600">
-              Deploy
+            <Button
+              onClick={(e) => deployButton(e)}
+              className="bg-amber-400 hover:bg-white text-black text-lg px-6 py-2 border border-yellow-600"
+            >
+              {isDeployed ? "Undeploy" : "Deploy"}
             </Button>
           </div>
         </div>
@@ -260,6 +437,74 @@ const AgentPage = () => {
               }}
             />
           </div>
+
+          {/* Embed Code Section - Only show when deployed */}
+          {isDeployed && (
+            <div className="flex flex-col gap-4 mt-10 mb-5 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-2">
+                  <div className="font-bold text-xl text-green-700 flex items-center gap-2">
+                    🎉 Your Chatbot is Live!
+                  </div>
+                  <div className="text-gray-700 italic">
+                    Copy and paste this code into your website
+                  </div>
+                </div>
+                <Button
+                  onClick={copyEmbedCode}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 flex items-center gap-2"
+                >
+                  {copySuccess ? (
+                    <>
+                      <FaCheck /> {copySuccess}
+                    </>
+                  ) : (
+                    <>
+                      <FaCopy /> Copy Code
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <div className="relative">
+                <div className="absolute top-2 right-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                  HTML
+                </div>
+                <Textarea
+                  className="w-full h-[30vh] font-mono text-sm bg-gray-900 text-green-400 border-green-500"
+                  value={generateEmbedCode()}
+                  readOnly
+                  onClick={(e) => {
+                    e.currentTarget.select();
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 text-sm text-gray-600">
+                <div className="font-semibold text-gray-800">
+                  📋 Integration Instructions:
+                </div>
+                <ol className="list-decimal list-inside space-y-1 ml-2">
+                  <li>
+                    Copy the code above using the &ldquo;Copy Code&rdquo; button
+                  </li>
+                  <li>
+                    Paste it before the closing{" "}
+                    <code className="bg-gray-200 px-1 rounded">
+                      &lt;/body&gt;
+                    </code>{" "}
+                    tag in your HTML file
+                  </li>
+                  <li>The chatbot will appear in the bottom-right corner</li>
+                  <li>
+                    Customize the position by modifying the{" "}
+                    <code className="bg-gray-200 px-1 rounded">style</code>{" "}
+                    attribute
+                  </li>
+                </ol>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

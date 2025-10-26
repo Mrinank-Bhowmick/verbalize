@@ -15,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { CiCirclePlus } from "react-icons/ci";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import Link from "next/link";
 
 type Agent = {
   agentId: string;
@@ -54,9 +53,53 @@ const AgentsPage = () => {
       });
     }
     if (userId) {
+      console.log("Fetching agents for user:", userId);
       fetchAgents(`${baseURL}/clients/${userId}/agents`);
     }
-  }, [userId]);
+  }, [userId, baseURL]);
+
+  const createAgent = async () => {
+    if (!agentName.trim()) {
+      alert("Please enter an agent name");
+      return;
+    }
+
+    // Generate a unique agent ID
+    const agentId = `${agentName
+      .toLowerCase()
+      .replace(/\s+/g, "-")}-${Date.now()}`;
+
+    try {
+      const response = await fetch(`${baseURL}/clients/${userId}/agents`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          agentId: agentId,
+          clientId: userId,
+          agentName: agentName,
+          description: "New chatbot description",
+          firstMessage: "Hello! How can I help you today?",
+          systemInstruction: null,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Agent created successfully:", result);
+
+      // Close dialog and redirect to the new agent page
+      setOpen(false);
+      window.location.href = `/agents/${agentId}`;
+    } catch (error) {
+      console.error("Error creating agent:", error);
+      alert("Failed to create agent. Please try again.");
+    }
+  };
 
   return (
     <div className="h-full">
@@ -112,9 +155,9 @@ const AgentsPage = () => {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Link href={`/agents/${agentName}`}>
-                      <Button type="button">Create</Button>
-                    </Link>
+                    <Button type="button" onClick={createAgent}>
+                      Create
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

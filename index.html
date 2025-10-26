@@ -3,30 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chatbot Embed</title>
-    <body>
-                <!-- Verbalize Chatbot Widget - Start -->
-        <div style="position: fixed; bottom: 20px; right: 20px; z-index: 10000;">
-          <iframe 
-            id="verbalize-chatbot" 
-            src="http://localhost:3000/chatbot" 
-            style="width: 80px; height: 80px; border: none; overflow: hidden; transition: all 0.3s ease; background: transparent;" 
-            allowtransparency="true" 
-            frameborder="0">
-          </iframe>
-          <script>
-            window.addEventListener("message", function(event) {
-              const chatbot = document.getElementById("verbalize-chatbot");
-              if(event.data === "chatbot-opened") {
-                chatbot.style.width = "380px";
-                chatbot.style.height = "500px";
-              } else if(event.data === "chatbot-closed") {
-                chatbot.style.width = "80px";
-                chatbot.style.height = "80px";
-              }
-            });
-          </script>
-        </div>
-        <!-- Verbalize Chatbot Widget - End -->
-    </body>
+    <title>Test Page with Chatbot</title>
+  </head>
+  <body>
+    <h1>Welcome to My Website</h1>
+    <p>This is a test page with an embedded chatbot.</p>
+
+    <!-- Verbalize Chatbot Embed Code -->
+    <iframe
+      id="verbalize-chatbot-mrinank-1761477647005"
+      src="http://localhost:3000/chatbot?agentId=mrinank-1761477647005&clientId=user_30FAFVbUdDdFCM6Raj3A5KxC2H7"
+      style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 400px;
+        height: 500px;
+        border: none;
+        z-index: 9999;
+      "
+      allow="clipboard-read; clipboard-write"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+    ></iframe>
+
+    <script>
+      // Optional: Listen for chatbot events
+      window.addEventListener("message", function (event) {
+        if (event.data === "chatbot-opened") {
+          console.log("Chatbot opened");
+        }
+        if (event.data === "chatbot-closed") {
+          console.log("Chatbot closed");
+        }
+      });
+    </script>
+  </body>
 </html>
