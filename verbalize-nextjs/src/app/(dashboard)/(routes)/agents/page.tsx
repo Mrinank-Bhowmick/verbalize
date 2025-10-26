@@ -5,13 +5,8 @@ import CreateAgentDialog from "./create-agent-dialog";
 
 type Agent = {
   agentId: string;
-  clientId: string;
   agentName: string;
-  firstMessage: string;
-  systemInstruction: string;
-  description: string;
   isDeployed: boolean;
-  createdAt: string;
 };
 
 async function getAgents(userId: string): Promise<Agent[]> {

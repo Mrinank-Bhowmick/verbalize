@@ -48,7 +48,11 @@ agentsRoutes.get("/", async (c) => {
   //
 
   const allAgents = await db
-    .select()
+    .select({
+      agentId: Agents.agentId,
+      agentName: Agents.agentName,
+      isDeployed: Agents.isDeployed,
+    })
     .from(Agents)
     .where(eq(Agents.clientId, clientId));
 
