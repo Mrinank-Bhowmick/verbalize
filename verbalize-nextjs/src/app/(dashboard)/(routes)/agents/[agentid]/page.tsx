@@ -95,7 +95,7 @@ const AgentPage = () => {
     };
 
     fetchAgentDetails();
-  }, [userId, agentid, baseURL]); // Runs only when userId, agentid, and baseURL are all set
+  }, [userId, agentid, baseURL]);
 
   const validateForm = () => {
     try {
