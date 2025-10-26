@@ -12,6 +12,16 @@ import { Tiktoken } from "js-tiktoken/lite";
 import cl100k_base from "js-tiktoken/ranks/cl100k_base";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@clerk/nextjs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const AgentSchema = z.object({
   agentName: z.string().min(1, { message: "Agent name is required" }),
@@ -38,6 +48,17 @@ const AgentPage = () => {
   const [erros, setErrors] = useState<Record<string, string>>({});
   const [tokenCount, setTokenCount] = useState<number>(0);
   const [copySuccess, setCopySuccess] = useState<string>("");
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [dialogConfig, setDialogConfig] = useState<{
+    title: string;
+    description: string;
+    type: "alert" | "confirm";
+    onConfirm?: () => void;
+  }>({
+    title: "",
+    description: "",
+    type: "alert",
+  });
 
   useEffect(() => {
     if (systemInstruction) {
@@ -125,22 +146,10 @@ const AgentPage = () => {
 <iframe 
   id="verbalize-chatbot-${agentid}"
   src="${embedUrl}"
-  style="position: fixed; bottom: 20px; right: 20px; width: 400px; height: 500px; border: none; z-index: 9999; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+  style="position: fixed; bottom: 20px; right: 20px; width: 400px; height: 500px; border: none; z-index: 9999;"
   allow="clipboard-read; clipboard-write"
   sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
-></iframe>
-
-<script>
-  // Optional: Listen for chatbot events
-  window.addEventListener('message', function(event) {
-    if (event.data === 'chatbot-opened') {
-      console.log('Chatbot opened');
-    }
-    if (event.data === 'chatbot-closed') {
-      console.log('Chatbot closed');
-    }
-  });
-</script>`;
+></iframe>`;
   };
 
   const copyEmbedCode = async () => {
@@ -154,12 +163,38 @@ const AgentPage = () => {
     }
   };
 
+  const showAlert = (title: string, description: string) => {
+    setDialogConfig({
+      title,
+      description,
+      type: "alert",
+    });
+    setDialogOpen(true);
+  };
+
+  const showConfirm = (
+    title: string,
+    description: string,
+    onConfirm: () => void
+  ) => {
+    setDialogConfig({
+      title,
+      description,
+      type: "confirm",
+      onConfirm,
+    });
+    setDialogOpen(true);
+  };
+
   const saveButton = async (e: MouseEvent) => {
     e.preventDefault();
 
     // Validate form before saving
     if (!validateForm()) {
-      alert("Please fix the validation errors before saving.");
+      showAlert(
+        "Validation Error",
+        "Please fix the validation errors before saving."
+      );
       return;
     }
 
@@ -188,41 +223,43 @@ const AgentPage = () => {
 
       const result = await response.json();
       console.log("Agent saved successfully:", result);
-      alert("Agent saved successfully!");
+      showAlert("Success", "Agent saved successfully!");
     } catch (error) {
       console.error("Error saving agent:", error);
-      alert("Failed to save agent. Please try again.");
+      showAlert("Error", "Failed to save agent. Please try again.");
     }
   };
 
   const deleteButton = async (e: MouseEvent) => {
     e.preventDefault();
 
-    const confirmDelete = confirm(
-      `Are you sure you want to delete "${agentName}"? This action cannot be undone.`
-    );
+    showConfirm(
+      "Delete Agent",
+      `Are you sure you want to delete "${agentName}"? This action cannot be undone.`,
+      async () => {
+        try {
+          const response = await fetch(
+            `${baseURL}/clients/${userId}/agents/${agentid}`,
+            {
+              method: "DELETE",
+            }
+          );
 
-    if (!confirmDelete) return;
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
 
-    try {
-      const response = await fetch(
-        `${baseURL}/clients/${userId}/agents/${agentid}`,
-        {
-          method: "DELETE",
+          showAlert("Success", "Agent deleted successfully!");
+          // Redirect to agents page after deletion
+          setTimeout(() => {
+            window.location.href = "/agents";
+          }, 1500);
+        } catch (error) {
+          console.error("Error deleting agent:", error);
+          showAlert("Error", "Failed to delete agent. Please try again.");
         }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
-      alert("Agent deleted successfully!");
-      // Redirect to agents page after deletion
-      window.location.href = "/agents";
-    } catch (error) {
-      console.error("Error deleting agent:", error);
-      alert("Failed to delete agent. Please try again.");
-    }
+    );
   };
 
   const deployButton = async (e: MouseEvent) => {
@@ -230,50 +267,53 @@ const AgentPage = () => {
 
     // If already deployed, undeploy it
     if (isDeployed) {
-      const confirmUndeploy = confirm(
-        `Are you sure you want to undeploy "${agentName}"?`
-      );
+      showConfirm(
+        "Undeploy Agent",
+        `Are you sure you want to undeploy "${agentName}"?`,
+        async () => {
+          try {
+            const response = await fetch(
+              `${baseURL}/clients/${userId}/agents/${agentid}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  agentId: agentid,
+                  clientId: userId,
+                  agentName: agentName,
+                  firstMessage: firstMessage,
+                  systemInstruction: systemInstruction,
+                  description: description,
+                  isDeployed: 0, // Set deployment flag to false
+                }),
+              }
+            );
 
-      if (!confirmUndeploy) return;
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
-      try {
-        const response = await fetch(
-          `${baseURL}/clients/${userId}/agents/${agentid}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              agentId: agentid,
-              clientId: userId,
-              agentName: agentName,
-              firstMessage: firstMessage,
-              systemInstruction: systemInstruction,
-              description: description,
-              isDeployed: 0, // Set deployment flag to false
-            }),
+            const result = await response.json();
+            console.log("Agent undeployed successfully:", result);
+            setIsDeployed(false);
+            showAlert("Success", "Agent undeployed successfully!");
+          } catch (error) {
+            console.error("Error undeploying agent:", error);
+            showAlert("Error", "Failed to undeploy agent. Please try again.");
           }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
-        const result = await response.json();
-        console.log("Agent undeployed successfully:", result);
-        setIsDeployed(false);
-        alert("Agent undeployed successfully!");
-      } catch (error) {
-        console.error("Error undeploying agent:", error);
-        alert("Failed to undeploy agent. Please try again.");
-      }
+      );
       return;
     }
 
     // Validate form before deploying
     if (!validateForm()) {
-      alert("Please fix the validation errors before deploying.");
+      showAlert(
+        "Validation Error",
+        "Please fix the validation errors before deploying."
+      );
       return;
     }
 
@@ -304,10 +344,10 @@ const AgentPage = () => {
       const result = await response.json();
       console.log("Agent deployed successfully:", result);
       setIsDeployed(true);
-      alert("Agent deployed successfully!");
+      showAlert("Success", "Agent deployed successfully!");
     } catch (error) {
       console.error("Error deploying agent:", error);
-      alert("Failed to deploy agent. Please try again.");
+      showAlert("Error", "Failed to deploy agent. Please try again.");
     }
   };
 
@@ -507,6 +547,37 @@ const AgentPage = () => {
           )}
         </div>
       </div>
+
+      {/* Alert Dialog */}
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{dialogConfig.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {dialogConfig.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            {dialogConfig.type === "confirm" ? (
+              <>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    dialogConfig.onConfirm?.();
+                    setDialogOpen(false);
+                  }}
+                >
+                  Continue
+                </AlertDialogAction>
+              </>
+            ) : (
+              <AlertDialogAction onClick={() => setDialogOpen(false)}>
+                OK
+              </AlertDialogAction>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
