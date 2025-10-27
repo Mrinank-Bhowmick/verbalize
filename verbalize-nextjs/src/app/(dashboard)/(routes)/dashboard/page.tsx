@@ -81,7 +81,7 @@ const DashboardContent = () => {
   const baseURL =
     process.env.NODE_ENV === "development"
       ? "http://localhost:8787"
-      : "https://verbalize-backend.mrinank-ai.workers.dev";
+      : "https://verbalize-backend.mrinank-ai.tech";
 
   const toggleSession = (sessionId: string) => {
     setExpandedSessions((prev) => {
