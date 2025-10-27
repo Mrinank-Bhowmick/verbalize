@@ -47,12 +47,13 @@ A Chatbot-as-a-Service platform that allows users to create, deploy, and embed A
 After deploying a chatbot, you'll receive an iframe embed code:
 
 ```html
-<iframe
-  id="verbalize-chatbot-[agent-id]"
-  src="https://your-domain.com/chatbot?agentId=[agent-id]&clientId=[client-id]"
+<!-- Verbalize Chatbot Embed Code -->
+<iframe 
+  id="verbalize-chatbot-mrinank-1761511071866"
+  src="https://verbalize.mrinank-ai.tech/chatbot?agentId=[your_agent_id]&clientId=[your_client_id]"
   style="position: fixed; bottom: 20px; right: 20px; width: 400px; height: 500px; border: none; z-index: 9999;"
   allow="clipboard-read; clipboard-write"
-  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
 ></iframe>
 ```
 
