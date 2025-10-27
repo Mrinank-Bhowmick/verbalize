@@ -1,6 +1,6 @@
 "use client";
 
-import ChatbotButton from "@/components/bot";
+import ChatbotButton from "@/components/chatbotbutton";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -97,8 +97,7 @@ function ChatbotContent() {
         systemInstruction={agentData.systemInstruction}
         description={agentData.description}
         agentID={agentId || "default"}
-        isEmbedded={true}
-        apiUrl={chatApiUrl}
+        api={chatApiUrl}
       />
     </div>
   );

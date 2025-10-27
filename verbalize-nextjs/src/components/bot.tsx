@@ -8,15 +8,15 @@ import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
-} from "@/components/ui/shadcn-io/ai/conversation";
+} from "@/components/ai-elements/conversation";
 import {
   Message,
   MessageAvatar,
   MessageContent,
-} from "@/components/ui/shadcn-io/ai/message";
+} from "@/components/ai-elements/message";
 import userAvatar from "../../public/images/user.png";
 import botAvatar from "../../public/images/bot.png";
-import { Response } from "@/components/ui/shadcn-io/ai/response";
+import { Response } from "@/components/ai-elements/response";
 
 interface chatbotProps {
   firstMessage: string;

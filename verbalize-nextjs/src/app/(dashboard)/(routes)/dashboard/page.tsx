@@ -1,7 +1,8 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Agent {
   agentId: string;
@@ -59,9 +60,18 @@ interface ProcessedAnalytics {
   sessions: SessionData[];
 }
 
-const Dashboard = () => {
+const DashboardContent = () => {
   const { user } = useUser();
-  const [analytics, setAnalytics] = useState<ProcessedAnalytics | null>(null);
+  const [analytics, setAnalytics] = useState<ProcessedAnalytics>({
+    overview: {
+      totalConversations: 0,
+      totalTokens: 0,
+      totalMessages: 0,
+      totalAgents: 0,
+    },
+    perAgentStats: [],
+    sessions: [],
+  });
   const [loading, setLoading] = useState(true);
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(
     new Set()
@@ -192,11 +202,31 @@ const Dashboard = () => {
           console.log("Processed analytics:", processed);
           setAnalytics(processed);
         } else {
-          setAnalytics(null);
+          // Set default empty state
+          setAnalytics({
+            overview: {
+              totalConversations: 0,
+              totalTokens: 0,
+              totalMessages: 0,
+              totalAgents: 0,
+            },
+            perAgentStats: [],
+            sessions: [],
+          });
         }
       } catch (err) {
         console.error("Error fetching analytics:", err);
-        setAnalytics(null);
+        // Set default empty state on error
+        setAnalytics({
+          overview: {
+            totalConversations: 0,
+            totalTokens: 0,
+            totalMessages: 0,
+            totalAgents: 0,
+          },
+          perAgentStats: [],
+          sessions: [],
+        });
       } finally {
         setLoading(false);
       }
@@ -207,23 +237,53 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="h-full bg-black text-white flex items-center justify-center">
-        <div className="text-xl">Loading analytics...</div>
+      <div className="h-full bg-black text-white p-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="mb-8">
+            <Skeleton className="h-10 w-64 mb-2 bg-zinc-800" />
+            <Skeleton className="h-5 w-96 bg-zinc-800" />
+          </div>
+
+          {/* Overview Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-zinc-900 border border-zinc-800 rounded-xl p-6"
+              >
+                <Skeleton className="h-4 w-32 mb-3 bg-zinc-800" />
+                <Skeleton className="h-9 w-24 bg-zinc-800" />
+              </div>
+            ))}
+          </div>
+
+          {/* Agent Performance Skeleton */}
+          <div className="bg-zinc-900 rounded-xl p-6 mb-8">
+            <Skeleton className="h-8 w-48 mb-4 bg-zinc-800" />
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-12 w-full bg-zinc-800" />
+              ))}
+            </div>
+          </div>
+
+          {/* Session History Skeleton */}
+          <div className="bg-zinc-900 rounded-xl p-6">
+            <Skeleton className="h-8 w-56 mb-4 bg-zinc-800" />
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton
+                  key={i}
+                  className="h-20 w-full rounded-lg bg-zinc-800"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
-
-  // Set default empty state for new users
-  const displayAnalytics = analytics || {
-    overview: {
-      totalConversations: 0,
-      totalTokens: 0,
-      totalMessages: 0,
-      totalAgents: 0,
-    },
-    perAgentStats: [],
-    sessions: [],
-  };
 
   return (
     <div className="h-full bg-black text-white p-8">
@@ -232,7 +292,7 @@ const Dashboard = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
           <p className="text-gray-400">
-            {displayAnalytics.sessions.length === 0
+            {analytics.sessions.length === 0
               ? "Start using your chatbots to see analytics"
               : "Overview of your chatbot performance"}
           </p>
@@ -245,28 +305,28 @@ const Dashboard = () => {
               Total Conversations
             </div>
             <div className="text-3xl font-bold text-yellow-400">
-              {displayAnalytics.overview.totalConversations.toLocaleString()}
+              {analytics.overview.totalConversations.toLocaleString()}
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 rounded-xl p-6">
             <div className="text-sm text-gray-400 mb-1">Total Tokens Used</div>
             <div className="text-3xl font-bold text-blue-400">
-              {displayAnalytics.overview.totalTokens.toLocaleString()}
+              {analytics.overview.totalTokens.toLocaleString()}
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 rounded-xl p-6">
             <div className="text-sm text-gray-400 mb-1">Total Messages</div>
             <div className="text-3xl font-bold text-green-400">
-              {displayAnalytics.overview.totalMessages.toLocaleString()}
+              {analytics.overview.totalMessages.toLocaleString()}
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 rounded-xl p-6">
             <div className="text-sm text-gray-400 mb-1">Active Agents</div>
             <div className="text-3xl font-bold text-purple-400">
-              {displayAnalytics.overview.totalAgents}
+              {analytics.overview.totalAgents}
             </div>
           </div>
         </div>
@@ -274,7 +334,7 @@ const Dashboard = () => {
         {/* Per-Agent Stats */}
         <div className="bg-zinc-900 rounded-xl p-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">Agent Performance</h2>
-          {displayAnalytics.perAgentStats.length > 0 ? (
+          {analytics.perAgentStats.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -286,7 +346,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {displayAnalytics.perAgentStats.map((stat) => (
+                  {analytics.perAgentStats.map((stat) => (
                     <tr
                       key={stat.agentId}
                       className="border-b border-zinc-800 hover:bg-zinc-800/50"
@@ -317,9 +377,9 @@ const Dashboard = () => {
         {/* Recent Conversations */}
         <div className="bg-zinc-900 rounded-xl p-6">
           <h2 className="text-2xl font-bold mb-4">Session Message History</h2>
-          {displayAnalytics.sessions.length > 0 ? (
+          {analytics.sessions.length > 0 ? (
             <div className="space-y-4">
-              {displayAnalytics.sessions.map((session) => (
+              {analytics.sessions.map((session) => (
                 <div
                   key={session.sessionId}
                   className="bg-zinc-800 rounded-lg overflow-hidden"
@@ -425,6 +485,66 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Loading fallback component
+const DashboardLoading = () => {
+  return (
+    <div className="h-full bg-black text-white p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Skeleton */}
+        <div className="mb-8">
+          <Skeleton className="h-10 w-64 mb-2 bg-zinc-800" />
+          <Skeleton className="h-5 w-96 bg-zinc-800" />
+        </div>
+
+        {/* Overview Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="bg-zinc-900 border border-zinc-800 rounded-xl p-6"
+            >
+              <Skeleton className="h-4 w-32 mb-3 bg-zinc-800" />
+              <Skeleton className="h-9 w-24 bg-zinc-800" />
+            </div>
+          ))}
+        </div>
+
+        {/* Agent Performance Skeleton */}
+        <div className="bg-zinc-900 rounded-xl p-6 mb-8">
+          <Skeleton className="h-8 w-48 mb-4 bg-zinc-800" />
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-12 w-full bg-zinc-800" />
+            ))}
+          </div>
+        </div>
+
+        {/* Session History Skeleton */}
+        <div className="bg-zinc-900 rounded-xl p-6">
+          <Skeleton className="h-8 w-56 mb-4 bg-zinc-800" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton
+                key={i}
+                className="h-20 w-full rounded-lg bg-zinc-800"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main Dashboard component with Suspense
+const Dashboard = () => {
+  return (
+    <Suspense fallback={<DashboardLoading />}>
+      <DashboardContent />
+    </Suspense>
   );
 };
 
