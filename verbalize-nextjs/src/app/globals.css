@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
+@source "../node_modules/streamdown/dist/index.js";
 
 body {
   background-color: #000000;

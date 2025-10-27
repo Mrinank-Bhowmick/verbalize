@@ -4,6 +4,19 @@ import { useState, useEffect } from "react";
 import { FaRobot, FaTimes } from "react-icons/fa";
 import { useChat } from "@ai-sdk/react";
 import { Turnstile } from "@marsidev/react-turnstile";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/components/ui/shadcn-io/ai/conversation";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+} from "@/components/ui/shadcn-io/ai/message";
+import userAvatar from "../../public/images/user.png";
+import botAvatar from "../../public/images/bot.png";
+import { Response } from "@/components/ui/shadcn-io/ai/response";
 //import { getFingerprint } from "@thumbmarkjs/thumbmarkjs";
 
 interface chatbotProps {
@@ -81,41 +94,32 @@ const ChatbotButton = ({
               <FaTimes />
             </button>
           </div>
-          <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-            {messages.length === 0 && firstMessage == "" ? (
-              <p className="text-gray-500 italic text-center mt-4">
-                Ask me anything...
-              </p>
-            ) : (
-              <div>
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`mb-3 ${
-                      message.role === "user" ? "text-right" : "text-left"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block px-3 py-2 rounded-lg ${
-                        message.role === "user"
-                          ? "bg-black text-white"
-                          : "bg-gray-200 text-gray-800"
-                      }`}
-                    >
-                      <div
-                        className={`text-xs font-medium text-gray-500 mb-1 ${
-                          message.role === "user" ? "hidden" : ""
-                        }`}
-                      >
-                        {agentName}
-                      </div>
-                      {message.content}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <Conversation
+            className="relative w-full text-black"
+            style={{ height: "250px" }}
+          >
+            <ConversationContent>
+              {messages.length === 0 && firstMessage == "" ? (
+                <p className="text-gray-500 italic text-center mt-4">
+                  Ask me anything...
+                </p>
+              ) : (
+                messages.map((message) => (
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent>
+                      <Response>{message.content}</Response>
+                    </MessageContent>
+                    {message.role === "assistant" ? (
+                      <MessageAvatar name={agentName} src={botAvatar.src} />
+                    ) : (
+                      <MessageAvatar name="You" src={userAvatar.src} />
+                    )}
+                  </Message>
+                ))
+              )}
+            </ConversationContent>
+            <ConversationScrollButton />
+          </Conversation>
           <div className="p-4 border-t border-gray-200 bg-white text-black">
             {!turnstileToken ? (
               <Turnstile

@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { BsRobot } from "react-icons/bs";
 import { FaCheck, FaCopy } from "react-icons/fa";
 import { useState, useEffect, MouseEvent } from "react";
-import ChatbotButton from "@/components/chatbotbutton";
+import ChatbotButton from "@/components/bot";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { systemInstructionTemplate } from "./systemPrompt";
@@ -352,247 +352,249 @@ const AgentPage = () => {
   };
 
   return (
-    <div className="bg-black min-h-screen text-yellow-50">
-      <div>
-        <ChatbotButton
-          firstMessage={firstMessage}
-          systemInstruction={systemInstruction}
-          agentName={agentName}
-          description={description}
-          agentID={`${agentid}`}
-          api={`${baseURL}/testchatbot`}
-        />
-      </div>
-      <div className="flex flex-col justify-center items-center">
-        <div className="fixed top-6 flex flex-wrap gap-2 justify-between bg-yellow-400/90 transition-all w-4/6 py-2 px-4 rounded-2xl shadow-lg border-2 border-yellow-500">
-          <div className="flex gap-2 items-center">
-            <Button
-              onClick={(e) => deleteButton(e)}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </Button>
-            {isDeployed && (
-              <div className="backdrop-blur-md bg-white/55 text-green-400 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                Deployed
-              </div>
-            )}
+    <>
+      <ChatbotButton
+        firstMessage={firstMessage}
+        systemInstruction={systemInstruction}
+        agentName={agentName}
+        description={description}
+        agentID={`${agentid}`}
+      />
+      <div className="bg-black min-h-screen text-yellow-50">
+        <div className="flex flex-col justify-center items-center">
+          <div className="fixed top-6 flex flex-wrap gap-2 justify-between bg-yellow-400/90 transition-all w-4/6 py-2 px-4 rounded-2xl shadow-lg border-2 border-yellow-500">
+            <div className="flex gap-2 items-center">
+              <Button
+                onClick={(e) => deleteButton(e)}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Delete
+              </Button>
+              {isDeployed && (
+                <div className="backdrop-blur-md bg-white/55 text-green-400 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                  Deployed
+                </div>
+              )}
+            </div>
+            <div className="flex gap-4">
+              <Button
+                onClick={(e) => saveButton(e)}
+                className="bg-green-500 hover:bg-gray-900 text-white text-lg px-6 py-2 border border-yellow-400"
+              >
+                Save
+              </Button>
+              <Button
+                onClick={(e) => deployButton(e)}
+                className="bg-black hover:bg-gray-900 text-white text-lg px-6 py-2 border border-yellow-400"
+              >
+                {isDeployed ? "Undeploy" : "Deploy"}
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-4">
-            <Button
-              onClick={(e) => saveButton(e)}
-              className="bg-green-500 hover:bg-gray-900 text-white text-lg px-6 py-2 border border-yellow-400"
-            >
-              Save
-            </Button>
-            <Button
-              onClick={(e) => deployButton(e)}
-              className="bg-black hover:bg-gray-900 text-white text-lg px-6 py-2 border border-yellow-400"
-            >
-              {isDeployed ? "Undeploy" : "Deploy"}
-            </Button>
+          <div className="flex flex-col items-center gap-4 mt-20 mb-5">
+            <div className="text-2xl font-bold text-yellow-400">
+              General Information
+            </div>
+            <div className="text-yellow-100">
+              General Information about your chatbot
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col items-center gap-4 mt-20 mb-5">
-          <div className="text-2xl font-bold text-yellow-400">
-            General Information
-          </div>
-          <div className="text-yellow-100">
-            General Information about your chatbot
-          </div>
-        </div>
-        <BsRobot size={100} className="mt-10 mb-10 text-yellow-400" />
-        <div>
+          <BsRobot size={100} className="mt-10 mb-10 text-yellow-400" />
           <div>
-            <div className="flex flex-wrap gap-8">
-              <div className="flex flex-col gap-2">
-                <div className="font-bold text-yellow-400">Name</div>
-                <Input
-                  value={agentName}
-                  type="text"
-                  placeholder="Your chatbot name"
-                  className="bg-gray-900 text-yellow-50 border-yellow-400"
-                  onChange={(e) => {
-                    setAgentName(e.target.value);
-                  }}
-                />
-                {erros.agentName && (
-                  <div className="text-red-500 text-sm">{erros.agentName}</div>
-                )}
-                <div className="text-sm text-yellow-100 italic ">
-                  This is how your Al chatbot will be named.
-                </div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="font-bold flex items-end gap-1 text-yellow-400">
-                  Description <div className="text-sm">(few words)</div>
-                </div>
-                <Input
-                  value={description}
-                  type="text"
-                  placeholder="Short description"
-                  className="bg-gray-900 text-yellow-50 border-yellow-400"
-                  onChange={(e) => {
-                    setDescription(e.target.value);
-                  }}
-                />
-                {erros.description && (
-                  <div className="text-red-500 text-sm">
-                    {erros.description}
-                  </div>
-                )}
-                <div className="text-sm text-yellow-100 italic">
-                  This is a short description about your chatbot.
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 mt-5 mb-5">
-            <div className="font-bold text-yellow-400">First Message</div>
-            <Input
-              value={firstMessage}
-              type="text"
-              placeholder="Hey, how can I help you?"
-              className="bg-gray-900 text-yellow-50 border-yellow-400"
-              onChange={(e) => {
-                setFirstMessage(e.target.value);
-              }}
-            />
-            {erros.firstMessage && (
-              <div className="text-red-500 text-sm">{erros.firstMessage}</div>
-            )}
-            <div className="text-sm text-yellow-100 italic">
-              First message that will appear by default on chat window.
-            </div>
-          </div>
-          <div className="flex flex-col gap-4 mt-10 mb-5">
-            <div className="font-bold text-xl text-yellow-400">
-              Configuration
-            </div>
-            <div className="text-yellow-100 italic">
-              Detailed instructions for AI Behavior
-            </div>
-            <div className="font-bold text-yellow-400">
-              System Instruction (optional)
-            </div>
-            <div className="text-yellow-200 text-sm">
-              Input token usage - {tokenCount}/150 tokens
-            </div>
-
-            <Textarea
-              className="w-[45vw] h-[40vh] bg-gray-900 text-yellow-50 border-yellow-400"
-              placeholder={systemInstructionTemplate}
-              value={systemInstruction || ""}
-              onChange={(e) => {
-                setSystemInstruction(e.target.value);
-              }}
-            />
-          </div>
-
-          {/* Embed Code Section - Only show when deployed */}
-          {isDeployed && (
-            <div className="flex flex-col gap-4 mt-10 mb-5 p-6 bg-gradient-to-r from-gray-900 to-black rounded-lg border-2 border-yellow-400">
-              <div className="flex items-center justify-between">
+            <div>
+              <div className="flex flex-wrap gap-8">
                 <div className="flex flex-col gap-2">
-                  <div className="font-bold text-xl text-yellow-400 flex items-center gap-2">
-                    🎉 Your Chatbot is Live!
-                  </div>
-                  <div className="text-yellow-100 italic">
-                    Copy and paste this code into your website
-                  </div>
-                </div>
-                <Button
-                  onClick={copyEmbedCode}
-                  className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 flex items-center gap-2"
-                >
-                  {copySuccess ? (
-                    <>
-                      <FaCheck /> {copySuccess}
-                    </>
-                  ) : (
-                    <>
-                      <FaCopy /> Copy Code
-                    </>
+                  <div className="font-bold text-yellow-400">Name</div>
+                  <Input
+                    value={agentName}
+                    type="text"
+                    placeholder="Your chatbot name"
+                    className="bg-gray-900 text-yellow-50 border-yellow-400"
+                    onChange={(e) => {
+                      setAgentName(e.target.value);
+                    }}
+                  />
+                  {erros.agentName && (
+                    <div className="text-red-500 text-sm">
+                      {erros.agentName}
+                    </div>
                   )}
-                </Button>
-              </div>
-
-              <div className="relative">
-                <div className="absolute top-2 right-2 text-xs text-yellow-400 bg-gray-800 px-2 py-1 rounded">
-                  HTML
+                  <div className="text-sm text-yellow-100 italic ">
+                    This is how your Al chatbot will be named.
+                  </div>
                 </div>
-                <Textarea
-                  className="w-full h-[30vh] font-mono text-sm bg-gray-900 text-yellow-400 border-yellow-500"
-                  value={generateEmbedCode()}
-                  readOnly
-                  onClick={(e) => {
-                    e.currentTarget.select();
-                  }}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2 text-sm text-yellow-100">
-                <div className="font-semibold text-yellow-400">
-                  📋 Integration Instructions:
+                <div className="flex flex-col gap-2">
+                  <div className="font-bold flex items-end gap-1 text-yellow-400">
+                    Description <div className="text-sm">(few words)</div>
+                  </div>
+                  <Input
+                    value={description}
+                    type="text"
+                    placeholder="Short description"
+                    className="bg-gray-900 text-yellow-50 border-yellow-400"
+                    onChange={(e) => {
+                      setDescription(e.target.value);
+                    }}
+                  />
+                  {erros.description && (
+                    <div className="text-red-500 text-sm">
+                      {erros.description}
+                    </div>
+                  )}
+                  <div className="text-sm text-yellow-100 italic">
+                    This is a short description about your chatbot.
+                  </div>
                 </div>
-                <ol className="list-decimal list-inside space-y-1 ml-2">
-                  <li>
-                    Copy the code above using the &ldquo;Copy Code&rdquo; button
-                  </li>
-                  <li>
-                    Paste it before the closing{" "}
-                    <code className="bg-gray-800 px-1 rounded text-yellow-400">
-                      &lt;/body&gt;
-                    </code>{" "}
-                    tag in your HTML file
-                  </li>
-                  <li>The chatbot will appear in the bottom-right corner</li>
-                  <li>
-                    Customize the position by modifying the{" "}
-                    <code className="bg-gray-800 px-1 rounded text-yellow-400">
-                      style
-                    </code>{" "}
-                    attribute
-                  </li>
-                </ol>
               </div>
             </div>
-          )}
-        </div>
-      </div>
+            <div className="flex flex-col gap-2 mt-5 mb-5">
+              <div className="font-bold text-yellow-400">First Message</div>
+              <Input
+                value={firstMessage}
+                type="text"
+                placeholder="Hey, how can I help you?"
+                className="bg-gray-900 text-yellow-50 border-yellow-400"
+                onChange={(e) => {
+                  setFirstMessage(e.target.value);
+                }}
+              />
+              {erros.firstMessage && (
+                <div className="text-red-500 text-sm">{erros.firstMessage}</div>
+              )}
+              <div className="text-sm text-yellow-100 italic">
+                First message that will appear by default on chat window.
+              </div>
+            </div>
+            <div className="flex flex-col gap-4 mt-10 mb-5">
+              <div className="font-bold text-xl text-yellow-400">
+                Configuration
+              </div>
+              <div className="text-yellow-100 italic">
+                Detailed instructions for AI Behavior
+              </div>
+              <div className="font-bold text-yellow-400">
+                System Instruction (optional)
+              </div>
+              <div className="text-yellow-200 text-sm">
+                Input token usage - {tokenCount} tokens
+              </div>
 
-      {/* Alert Dialog */}
-      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{dialogConfig.title}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {dialogConfig.description}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            {dialogConfig.type === "confirm" ? (
-              <>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    dialogConfig.onConfirm?.();
-                    setDialogOpen(false);
-                  }}
-                >
-                  Continue
-                </AlertDialogAction>
-              </>
-            ) : (
-              <AlertDialogAction onClick={() => setDialogOpen(false)}>
-                OK
-              </AlertDialogAction>
+              <Textarea
+                className="w-[45vw] h-[40vh] bg-gray-900 text-yellow-50 border-yellow-400"
+                placeholder={systemInstructionTemplate}
+                value={systemInstruction || ""}
+                onChange={(e) => {
+                  setSystemInstruction(e.target.value);
+                }}
+              />
+            </div>
+
+            {/* Embed Code Section - Only show when deployed */}
+            {isDeployed && (
+              <div className="flex flex-col gap-4 mt-10 mb-5 p-6 bg-gradient-to-r from-gray-900 to-black rounded-lg border-2 border-yellow-400">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-2">
+                    <div className="font-bold text-xl text-yellow-400 flex items-center gap-2">
+                      🎉 Your Chatbot is Live!
+                    </div>
+                    <div className="text-yellow-100 italic">
+                      Copy and paste this code into your website
+                    </div>
+                  </div>
+                  <Button
+                    onClick={copyEmbedCode}
+                    className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 flex items-center gap-2"
+                  >
+                    {copySuccess ? (
+                      <>
+                        <FaCheck /> {copySuccess}
+                      </>
+                    ) : (
+                      <>
+                        <FaCopy /> Copy Code
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute top-2 right-2 text-xs text-yellow-400 bg-gray-800 px-2 py-1 rounded">
+                    HTML
+                  </div>
+                  <Textarea
+                    className="w-full h-[30vh] font-mono text-sm bg-gray-900 text-yellow-400 border-yellow-500"
+                    value={generateEmbedCode()}
+                    readOnly
+                    onClick={(e) => {
+                      e.currentTarget.select();
+                    }}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2 text-sm text-yellow-100">
+                  <div className="font-semibold text-yellow-400">
+                    📋 Integration Instructions:
+                  </div>
+                  <ol className="list-decimal list-inside space-y-1 ml-2">
+                    <li>
+                      Copy the code above using the &ldquo;Copy Code&rdquo;
+                      button
+                    </li>
+                    <li>
+                      Paste it before the closing{" "}
+                      <code className="bg-gray-800 px-1 rounded text-yellow-400">
+                        &lt;/body&gt;
+                      </code>{" "}
+                      tag in your HTML file
+                    </li>
+                    <li>The chatbot will appear in the bottom-right corner</li>
+                    <li>
+                      Customize the position by modifying the{" "}
+                      <code className="bg-gray-800 px-1 rounded text-yellow-400">
+                        style
+                      </code>{" "}
+                      attribute
+                    </li>
+                  </ol>
+                </div>
+              </div>
             )}
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+          </div>
+        </div>
+
+        {/* Alert Dialog */}
+        <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{dialogConfig.title}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {dialogConfig.description}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              {dialogConfig.type === "confirm" ? (
+                <>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      dialogConfig.onConfirm?.();
+                      setDialogOpen(false);
+                    }}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </>
+              ) : (
+                <AlertDialogAction onClick={() => setDialogOpen(false)}>
+                  OK
+                </AlertDialogAction>
+              )}
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </>
   );
 };
 

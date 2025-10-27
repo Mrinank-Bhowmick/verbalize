@@ -13,19 +13,17 @@ export type Bindings = {
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
+// Enable CORS
+const allowedOrigin =
+  process.env.NODE_ENV === "production"
+    ? "https://verbalize.mrinank-ai.tech"
+    : "*";
 
 // Global CORS configuration
 app.use(
   "*",
   cors({
-    origin: (origin) => {
-      const allowedOrigins = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "https://verbalize.mrinank-ai.tech",
-      ];
-      return origin || "*";
-    },
+    origin: allowedOrigin,
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     exposeHeaders: ["X-Vercel-AI-Data-Stream"],

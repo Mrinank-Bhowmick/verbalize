@@ -22,8 +22,6 @@ function ChatbotContent() {
       ? "http://127.0.0.1:8787"
       : "https://verbalize-api.mrinank-ai.tech";
 
-  const chatApiUrl = `${baseURL}/testchatbot`;
-
   useEffect(() => {
     if (agentId && clientId) {
       const fetchAgentData = async () => {
@@ -98,7 +96,6 @@ function ChatbotContent() {
         description={agentData.description}
         agentID={agentId || "default"}
         isEmbedded={true}
-        apiUrl={chatApiUrl}
       />
     </div>
   );

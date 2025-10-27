@@ -54,10 +54,14 @@ testchatbotroutes.post("/", async (c) => {
       try {
         const tokenCount = output.usage.totalTokens;
         const requestBody = JSON.parse(output.request.body!);
-        const msgHistory = requestBody.contents.map((content: any) => ({
+        let msgHistory = requestBody.contents.map((content: any) => ({
           role: content.role,
           text: content.parts[0].text,
         }));
+        msgHistory.push({
+          role: "assistant",
+          text: output.text,
+        });
         const info = getConnInfo(c);
         const clientIP = info.remote.address || "unknown";
 
