@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { streamText } from "ai";
+import { streamText, smoothStream } from "ai";
 import { env } from "hono/adapter";
 import { cors } from "hono/cors";
 import { getConnInfo } from "hono/cloudflare-workers";
@@ -65,9 +65,19 @@ testchatbotroutes.post("/", async (c) => {
         const info = getConnInfo(c);
         const clientIP = info.remote.address || "unknown";
 
-        console.log("Client IP:", clientIP);
-        console.log("Session ID:", sessionId);
-        console.log("Tokens used:", tokenCount);
+        // Validate required fields
+        if (!agentID || !sessionId || !clientIP) {
+          console.error("Missing required analytics fields:", {
+            agentID,
+            sessionId,
+            clientIP,
+          });
+          return;
+        }
+
+        // console.log("Client IP:", clientIP);
+        // console.log("Session ID:", sessionId);
+        // console.log("Tokens used:", tokenCount);
 
         // Check if session already exists
         const existing = await db
@@ -90,11 +100,11 @@ testchatbotroutes.post("/", async (c) => {
               totalTokensUsed: existing.totalTokensUsed + tokenCount,
               messageHistory: JSON.stringify(msgHistory),
               conversationCount: existing.conversationCount + 1,
-              lastUpdated: sql`CURRENT_TIMESTAMP`,
+              lastUpdated: new Date().toISOString(),
             })
             .where(eq(Analytics.id, existing.id));
 
-          console.log("Updated existing analytics record:", existing.id);
+          //console.log("Updated existing analytics record:", existing.id);
         } else {
           // Create new session
           await db.insert(Analytics).values({
@@ -106,7 +116,7 @@ testchatbotroutes.post("/", async (c) => {
             conversationCount: 1,
           });
 
-          console.log("Created new analytics record for session:", sessionId);
+          //console.log("Created new analytics record for session:", sessionId);
         }
       } catch (error) {
         console.error("Error saving analytics:", error);
@@ -119,6 +129,10 @@ testchatbotroutes.post("/", async (c) => {
         },
       },
     },
+    experimental_transform: smoothStream({
+      delayInMs: 20,
+      chunking: "line",
+    }),
   });
 
   return result.toDataStreamResponse();

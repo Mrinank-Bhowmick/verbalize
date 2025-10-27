@@ -37,11 +37,25 @@ export default function ChatbotButton({
 }: chatbotProps) {
   const [showChat, setShowChat] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [sessionId, setSessionId] = useState<string>("");
 
   // Ensure component is mounted (client-side only)
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Generate a unique session ID when component mounts
+    const storedSessionId = sessionStorage.getItem(
+      `chatbot-session-${agentID}`
+    );
+    if (storedSessionId) {
+      setSessionId(storedSessionId);
+    } else {
+      const newSessionId = `${agentID}-${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(7)}`;
+      setSessionId(newSessionId);
+      sessionStorage.setItem(`chatbot-session-${agentID}`, newSessionId);
+    }
+  }, [agentID]);
 
   // Determine API URL based on environment or prop
   const chatApiUrl =
@@ -60,6 +74,7 @@ export default function ChatbotButton({
     ],
     body: {
       agentID: agentID,
+      sessionId: sessionId,
       systemInstruction: systemInstruction
         ? systemInstruction
         : `Your name is ${agentName}. Description about you - ${description}`,

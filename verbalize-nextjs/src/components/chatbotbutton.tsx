@@ -41,12 +41,19 @@ const ChatbotButton = ({
   const [sessionId, setSessionId] = useState<string>("");
   //const [fingerprint, setFingerprint] = useState<string | null>(null);
 
-  // Generate sessionId when component mounts
+  // Generate sessionId when component mounts - persist in sessionStorage
   useEffect(() => {
-    if (typeof window !== "undefined" && window.crypto) {
-      setSessionId(crypto.randomUUID());
+    const storedSessionId = sessionStorage.getItem(
+      `chatbot-session-${agentID}`
+    );
+    if (storedSessionId) {
+      setSessionId(storedSessionId);
+    } else if (typeof window !== "undefined" && window.crypto) {
+      const newSessionId = crypto.randomUUID();
+      setSessionId(newSessionId);
+      sessionStorage.setItem(`chatbot-session-${agentID}`, newSessionId);
     }
-  }, []);
+  }, [agentID]);
 
   // useEffect(() => {
   //   const fetchFingerprint = async () => {

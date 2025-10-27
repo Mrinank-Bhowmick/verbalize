@@ -59,7 +59,7 @@ analyticsRoutes.get("/:clientId", async (c) => {
       .orderBy(desc(Analytics.lastUpdated));
 
     // Return raw data - let client do the calculations
-    console.log(JSON.stringify(analytics, null, 2));
+    //console.log(JSON.stringify(analytics, null, 2));
     return c.json({
       agents,
       analytics,

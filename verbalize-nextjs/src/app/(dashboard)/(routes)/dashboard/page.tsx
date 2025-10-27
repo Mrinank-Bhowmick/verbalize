@@ -134,14 +134,17 @@ const DashboardContent = () => {
       stats.messages += record.conversationCount;
     });
 
-    const perAgentStats = Array.from(agentStatsMap.entries())
-      .map(([agentId, stats]) => ({
-        agentId,
-        agentName: agentMap.get(agentId)?.agentName || "Unknown",
-        conversations: stats.conversations.size,
-        tokens: stats.tokens,
-        messages: stats.messages,
-      }))
+    const perAgentStats = agents
+      .map((agent) => {
+        const stats = agentStatsMap.get(agent.agentId);
+        return {
+          agentId: agent.agentId,
+          agentName: agent.agentName,
+          conversations: stats ? stats.conversations.size : 0,
+          tokens: stats ? stats.tokens : 0,
+          messages: stats ? stats.messages : 0,
+        };
+      })
       .sort((a, b) => b.conversations - a.conversations);
 
     // Process sessions with message history
