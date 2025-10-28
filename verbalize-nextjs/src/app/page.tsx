@@ -1,5 +1,3 @@
-"use client";
-
 import Demo from "@/components/Home/Demo";
 import Footer from "@/components/Home/Footer";
 import FAQ from "@/components/Home/FAQ";
