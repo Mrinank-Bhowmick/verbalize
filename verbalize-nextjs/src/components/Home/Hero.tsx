@@ -26,9 +26,10 @@ const Hero = () => {
           <Image
             src="/images/cursor.png"
             alt=""
-            width={30}
-            height={30}
+            width={40}
+            height={40}
             className="transform scale-x-[-1] sm:w-[40px] sm:h-[40px]"
+            priority
           />
         </motion.div>
         <motion.div
@@ -40,9 +41,10 @@ const Hero = () => {
           <Image
             src="/images/cursor.png"
             alt=""
-            width={30}
-            height={30}
+            width={40}
+            height={40}
             className="transform scale-x-[-1] sm:w-[40px] sm:h-[40px]"
+            loading="lazy"
           />
         </motion.div>
 
@@ -56,9 +58,10 @@ const Hero = () => {
           <Image
             src="/images/cursor.png"
             alt=""
-            width={30}
-            height={30}
+            width={40}
+            height={40}
             className="sm:w-[40px] sm:h-[40px]"
+            loading="lazy"
           />
         </motion.div>
         <motion.div
@@ -70,9 +73,10 @@ const Hero = () => {
           <Image
             src="/images/cursor.png"
             alt=""
-            width={30}
-            height={30}
+            width={40}
+            height={40}
             className="sm:w-[40px] sm:h-[40px]"
+            loading="lazy"
           />
         </motion.div>
 

@@ -2,8 +2,6 @@
 import { useState, useEffect, useRef } from "react";
 import ChatbotButton from "../chatbotbutton";
 import { Input } from "@/components/ui/input";
-import { Tiktoken } from "js-tiktoken/lite";
-import cl100k_base from "js-tiktoken/ranks/cl100k_base";
 import { Textarea } from "@/components/ui/textarea";
 import { systemInstructionTemplate } from "./systemPrompt";
 
@@ -60,9 +58,14 @@ const Demo = () => {
 
   useEffect(() => {
     if (systemInstruction) {
-      const encoder = new Tiktoken(cl100k_base);
-      const tokens = encoder.encode(systemInstruction!);
-      setTokenCount(tokens.length);
+      // Dynamic import of tokenizer to reduce initial bundle size
+      import("js-tiktoken/lite").then(({ Tiktoken }) => {
+        import("js-tiktoken/ranks/cl100k_base").then((cl100k_base) => {
+          const encoder = new Tiktoken(cl100k_base.default);
+          const tokens = encoder.encode(systemInstruction!);
+          setTokenCount(tokens.length);
+        });
+      });
     } else {
       setTokenCount(0);
     }
