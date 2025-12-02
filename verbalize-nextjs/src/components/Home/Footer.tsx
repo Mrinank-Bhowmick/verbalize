@@ -8,7 +8,12 @@ const Footer = () => {
     <footer className="py-8 px-4 sm:px-6 lg:px-8 border-t border-gray-800">
       <div className="mx-auto max-w-7xl flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-2">
-          <Image src="/images/logo.png" alt="Verbalize" width={30} height={30} />
+          <Image
+            src="/images/logo.png"
+            alt="Verbalize"
+            width={30}
+            height={30}
+          />
           <p className="text-lg font-semibold text-white">Verbalize</p>
         </div>
         <div className="text-gray-400 text-sm">
